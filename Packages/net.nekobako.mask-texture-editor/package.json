@@ -1,0 +1,13 @@
+{
+  "name": "net.nekobako.mask-texture-editor",
+  "version": "0.0.1",
+  "displayName": "Mask Texture Editor",
+  "description": "A tool to draw mask textures in Unity Editor",
+  "unity": "2022.3",
+  "author": {
+    "name": "nekobako",
+    "url": "https://nekobako.net"
+  },
+  "license": "MIT",
+  "url": "https://github.com/nekobako/MaskTextureEditor/releases/download/0.0.1/net.nekobako.mask-texture-editor-0.0.1.zip"
+}
