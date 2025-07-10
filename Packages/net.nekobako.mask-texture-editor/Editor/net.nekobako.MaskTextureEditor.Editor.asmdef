@@ -2,6 +2,7 @@
     "name": "net.nekobako.MaskTextureEditor.Editor",
     "rootNamespace": "",
     "references": [
+        "net.nekobako.MaskTextureEditor.Localization",
         "nadena.dev.ndmf"
     ],
     "includePlatforms": [
