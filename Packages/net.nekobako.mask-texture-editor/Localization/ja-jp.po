@@ -1,0 +1,81 @@
+msgid ""
+msgstr ""
+"Language: ja-jp\n"
+
+msgid "locale:ja-jp"
+msgstr "日本語"
+
+msgid "title"
+msgstr "マスクテクスチャエディター"
+
+msgid "create"
+msgstr "新しいテクスチャ"
+
+msgid "select"
+msgstr "テクスチャを開く"
+
+msgid "texture"
+msgstr "テクスチャ"
+
+msgid "renderer"
+msgstr "レンダラー"
+
+msgid "slot"
+msgstr "マテリアルスロット"
+
+msgid "view-scale"
+msgstr "表示倍率 (Scroll)"
+
+msgid "view-opacity"
+msgstr "表示透明度 (Alt + Scroll)"
+
+msgid "brush-size"
+msgstr "ブラシサイズ (Shift + Scroll)"
+
+msgid "brush-color"
+msgstr "ブラシカラー"
+
+msgid "black"
+msgstr "黒"
+
+msgid "white"
+msgstr "白"
+
+msgid "fill-black"
+msgstr "黒で塗りつぶす"
+
+msgid "fill-white"
+msgstr "白で塗りつぶす"
+
+msgid "inverse"
+msgstr "色を反転させる"
+
+msgid "reset-view"
+msgstr "表示をウィンドウに合わせる"
+
+msgid "save"
+msgstr "保存する"
+
+msgid "save-changes-message"
+msgstr "保存されていない変更があります。保存しますか？"
+
+msgid "save-changes-button-save"
+msgstr "保存"
+
+msgid "save-changes-button-discard"
+msgstr "破棄"
+
+msgid "save-changes-button-cancel"
+msgstr "キャンセル"
+
+msgid "error-title"
+msgstr "エラー"
+
+msgid "error-message-create-failed"
+msgstr "テクスチャの作成に失敗しました。詳細はログを参照してください。"
+
+msgid "error-message-select-failed"
+msgstr "テクスチャの選択に失敗しました。詳細はログを参照してください。"
+
+msgid "error-message-save-failed"
+msgstr "テクスチャの保存に失敗しました。詳細はログを参照してください。"

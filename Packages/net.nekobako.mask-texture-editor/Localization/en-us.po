@@ -1,0 +1,81 @@
+msgid ""
+msgstr ""
+"Language: en-us\n"
+
+msgid "locale:en-us"
+msgstr "English"
+
+msgid "title"
+msgstr "Mask Texture Editor"
+
+msgid "create"
+msgstr "New Texture"
+
+msgid "select"
+msgstr "Open Texture"
+
+msgid "texture"
+msgstr "Texture"
+
+msgid "renderer"
+msgstr "Renderer"
+
+msgid "slot"
+msgstr "Material Slot"
+
+msgid "view-scale"
+msgstr "View Scale (Scroll)"
+
+msgid "view-opacity"
+msgstr "View Opacity (Alt + Scroll)"
+
+msgid "brush-size"
+msgstr "Brush Size (Shift + Scroll)"
+
+msgid "brush-color"
+msgstr "Brush Color"
+
+msgid "black"
+msgstr "Black"
+
+msgid "white"
+msgstr "White"
+
+msgid "fill-black"
+msgstr "Fill Black"
+
+msgid "fill-white"
+msgstr "Fill White"
+
+msgid "inverse"
+msgstr "Inverse Color"
+
+msgid "reset-view"
+msgstr "Fit the view to the window"
+
+msgid "save"
+msgstr "Save"
+
+msgid "save-changes-message"
+msgstr "There are unsaved changes. Would you like to save?"
+
+msgid "save-changes-button-save"
+msgstr "Save"
+
+msgid "save-changes-button-discard"
+msgstr "Discard"
+
+msgid "save-changes-button-cancel"
+msgstr "Cancel"
+
+msgid "error-title"
+msgstr "Error"
+
+msgid "error-message-create-failed"
+msgstr "Failed to create the texture. Refer to the log for details."
+
+msgid "error-message-select-failed"
+msgstr "Failed to select the texture. Refer to the log for details."
+
+msgid "error-message-save-failed"
+msgstr "Failed to save the texture. Refer to the log for details."
