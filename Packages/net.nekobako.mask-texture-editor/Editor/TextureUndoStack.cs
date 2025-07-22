@@ -136,6 +136,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         private void OnDestroy()
         {
+            if (m_Target != null)
+            {
+                m_Target = null!; // Reset
+            }
             if (m_Stack != null)
             {
                 foreach (var texture in m_Stack)

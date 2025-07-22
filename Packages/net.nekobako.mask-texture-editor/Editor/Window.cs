@@ -100,6 +100,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
             var window = GetWindow<Window>(string.Empty, false);
             if (!context.Observe(window, x =>
+                x.m_Texture != null &&
                 (renderer == null || x.m_UvMapDrawer.Renderer == renderer) &&
                 (slot == null || x.m_UvMapDrawer.Slot == slot) &&
                 (token == null || x.m_Token == token)))
@@ -112,7 +113,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         private void OnEnable()
         {
-            IsOpen.Value = true;
+            IsOpen.Value = m_Texture != null;
         }
 
         private void OnDisable()
@@ -130,6 +131,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
             var window = GetWindow<Window>(string.Empty, false);
             return
+                window.m_Texture != null &&
                 (renderer == null || window.m_UvMapDrawer.Renderer == renderer) &&
                 (slot == null || window.m_UvMapDrawer.Slot == slot) &&
                 (token == null || window.m_Token == token);
@@ -205,6 +207,8 @@ namespace net.nekobako.MaskTextureEditor.Editor
             position = new(0.0f, 0.0f, 1000.0f, 600.0f);
 
             Show();
+
+            IsOpen.Value = m_Texture != null;
         }
 
         private void OnGUI()
@@ -520,6 +524,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         private void OnDestroy()
         {
+            if (m_Texture != null)
+            {
+                m_Texture = null!; // Reset
+            }
             if (m_UvMapDrawer != null)
             {
                 DestroyImmediate(m_UvMapDrawer);
