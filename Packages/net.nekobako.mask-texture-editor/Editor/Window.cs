@@ -115,17 +115,9 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
             return window.m_TextureUndoStack.ObservePeek(context);
         }
-
-        private void OnEnable()
-        {
-            IsOpen.Value = m_Texture != null;
-        }
-
-        private void OnDisable()
-        {
-            IsOpen.Value = false;
-        }
 #endif
+
+        private static bool s_IsOpen = false;
 
         public static bool IsOpenFor(Renderer? renderer = null, int? slot = null, string? token = null)
         {
@@ -134,7 +126,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         public static bool IsOpenFor(Texture2D? texture = null, Renderer? renderer = null, int? slot = null, string? token = null)
         {
-            if (!HasOpenInstances<Window>())
+            if (!s_IsOpen)
             {
                 return false;
             }
@@ -218,7 +210,26 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
             Show();
 
+            s_IsOpen = m_Texture != null;
+#if MTE_NDMF
             IsOpen.Value = m_Texture != null;
+#endif
+        }
+
+        private void OnEnable()
+        {
+            s_IsOpen = m_Texture != null;
+#if MTE_NDMF
+            IsOpen.Value = m_Texture != null;
+#endif
+        }
+
+        private void OnDisable()
+        {
+            s_IsOpen = false;
+#if MTE_NDMF
+            IsOpen.Value = false;
+#endif
         }
 
         private void OnGUI()
