@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - IsOpen turns into true before initialization.
+- NRE when losing target renderer.
 
 ### Security
 

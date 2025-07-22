@@ -99,6 +99,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         private (Mesh?, Material?) CollectMeshAndMaterial()
         {
+            if (m_Renderer == null)
+            {
+                return (null, null);
+            }
+
             switch (m_Renderer)
             {
                 case MeshRenderer meshRenderer:
