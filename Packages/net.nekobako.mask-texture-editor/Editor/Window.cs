@@ -93,6 +93,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         public static Texture2D? ObserveTextureFor(ComputeContext context, Renderer? renderer = null, int? slot = null, string? token = null)
         {
+            return ObserveTextureFor(context, null, renderer, slot, token);
+        }
+
+        public static Texture2D? ObserveTextureFor(ComputeContext context, Texture2D? texture = null, Renderer? renderer = null, int? slot = null, string? token = null)
+        {
             if (!context.Observe(IsOpen))
             {
                 return null;
@@ -100,7 +105,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
             var window = GetWindow<Window>(string.Empty, false);
             if (!context.Observe(window, x =>
-                x.m_Texture != null &&
+                (texture == null || x.m_Texture == texture) &&
                 (renderer == null || x.m_UvMapDrawer.Renderer == renderer) &&
                 (slot == null || x.m_UvMapDrawer.Slot == slot) &&
                 (token == null || x.m_Token == token)))
@@ -124,6 +129,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         public static bool IsOpenFor(Renderer? renderer = null, int? slot = null, string? token = null)
         {
+            return IsOpenFor(null, renderer, slot, token);
+        }
+
+        public static bool IsOpenFor(Texture2D? texture = null, Renderer? renderer = null, int? slot = null, string? token = null)
+        {
             if (!HasOpenInstances<Window>())
             {
                 return false;
@@ -131,7 +141,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
             var window = GetWindow<Window>(string.Empty, false);
             return
-                window.m_Texture != null &&
+                (texture == null || window.m_Texture == texture) &&
                 (renderer == null || window.m_UvMapDrawer.Renderer == renderer) &&
                 (slot == null || window.m_UvMapDrawer.Slot == slot) &&
                 (token == null || window.m_Token == token);
