@@ -25,6 +25,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
             {
                 fixedHeight = 24.0f,
             };
+            public static readonly GUIStyle LargeButton = new("button")
+            {
+                fixedHeight = 48.0f,
+            };
         }
 
         private static class Events
@@ -337,7 +341,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 m_RequestResetView = true;
             }
 
-            if (GUILayout.Button(CL4EE.Tr("save"), Styles.Button))
+            if (GUILayout.Button(CL4EE.Tr("save"), Styles.LargeButton))
             {
                 SaveChanges();
             }
