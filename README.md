@@ -1,7 +1,6 @@
+| English | [日本語](README-ja-jp.md) |
+
 # Mask Texture Editor
-
-English | [日本語](README-ja-jp.md)
-
 A Tool to draw mask textures in Unity Editor.
 
 Extracted from [AAO: Avatar Optimizer](https://github.com/anatawa12/AvatarOptimizer).

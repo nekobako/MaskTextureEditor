@@ -1,7 +1,6 @@
+| [English](README.md) | 日本語 |
+
 # マスクテクスチャエディター
-
-[English](README.md) | 日本語
-
 Unity Editor 上でマスクテクスチャを描くためのツールです。
 
 [AAO: Avatar Optimizer](https://github.com/anatawa12/AvatarOptimizer) から切り出されました。
