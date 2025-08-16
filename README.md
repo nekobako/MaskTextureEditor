@@ -1,9 +1,12 @@
 # Mask Texture Editor
+
+English | [日本語](README-ja-jp.md)
+
 A Tool to draw mask textures in Unity Editor.
 
 Extracted from [AAO: Avatar Optimizer](https://github.com/anatawa12/AvatarOptimizer).
 
-![Mask Texture Editor](https://github.com/user-attachments/assets/d2cf0259-2aa0-4769-a4d5-ab3a28a6fc4d)
+![Mask Texture Editor](https://github.com/user-attachments/assets/76f680c3-a793-4325-bb27-1e3db9030a9b)
 
 ## Installation
 1. Press `Add to VCC` button in [VPM Listing](https://vpm.nekobako.net) and register the repository.
