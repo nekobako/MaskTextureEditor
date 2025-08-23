@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace net.nekobako.MaskTextureEditor.Editor
 {
@@ -9,6 +10,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const string k_PaintShaderName = "Hidden/MaskTextureEditor/Paint";
         private const string k_InverseShaderName = "Hidden/MaskTextureEditor/Inverse";
 
+        private static readonly int s_ColorMaskPropertyId = Shader.PropertyToID("_ColorMask");
         private static readonly int s_ColorPropertyId = Shader.PropertyToID("_Color");
         private static readonly int s_BrushLinePropertyId = Shader.PropertyToID("_BrushLine");
         private static readonly int s_BrushSizePropertyId = Shader.PropertyToID("_BrushSize");
@@ -30,6 +32,9 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private Material m_InverseMaterial = null!; // Initialize in Init
 
         [SerializeField]
+        private ColorWriteMask m_ColorMask = ColorWriteMask.All;
+
+        [SerializeField]
         private float m_BrushSize = 100.0f;
 
         [SerializeField]
@@ -37,6 +42,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         public RenderTexture Texture => m_Target;
         public Vector2 TextureSize => new(m_Target.width, m_Target.height);
+
+        public ColorWriteMask ColorMask
+        {
+            get => m_ColorMask;
+            set => m_ColorMask = value;
+        }
 
         public float BrushSize
         {
@@ -96,6 +107,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
         public void Draw(Rect rect, bool brush)
         {
             // Draw the texture
+            var color = GUI.color;
+            color.r = (m_ColorMask & ColorWriteMask.Red) != 0 ? color.r : 0.0f;
+            color.g = (m_ColorMask & ColorWriteMask.Green) != 0 ? color.g : 0.0f;
+            color.b = (m_ColorMask & ColorWriteMask.Blue) != 0 ? color.b : 0.0f;
+            GUI.color = color;
             GUI.DrawTexture(rect, m_Target);
 
             // Draw the brush
@@ -140,6 +156,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         public void Fill(Color color)
         {
+            m_FillMaterial.SetInt(s_ColorMaskPropertyId, (int)m_ColorMask);
             m_FillMaterial.SetColor(s_ColorPropertyId, color);
 
             Graphics.Blit(m_Target, m_Buffer);
@@ -149,6 +166,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         public void Paint(Vector2 positionA, Vector2 positionB)
         {
+            m_PaintMaterial.SetInt(s_ColorMaskPropertyId, (int)m_ColorMask);
             m_PaintMaterial.SetVector(s_BrushLinePropertyId, new(
                 positionA.x, TextureSize.y - positionA.y,
                 positionB.x, TextureSize.y - positionB.y));
@@ -162,6 +180,8 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         public void Inverse()
         {
+            m_InverseMaterial.SetInt(s_ColorMaskPropertyId, (int)m_ColorMask);
+
             Graphics.Blit(m_Target, m_Buffer);
             Graphics.Blit(m_Buffer, m_Target, m_InverseMaterial);
             RenderTexture.active = null;

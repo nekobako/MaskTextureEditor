@@ -2,6 +2,7 @@ Shader "Hidden/MaskTextureEditor/Fill"
 {
     Properties
     {
+        _ColorMask("Color Mask", Int) = 15
         _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
     }
 
@@ -14,6 +15,8 @@ Shader "Hidden/MaskTextureEditor/Fill"
 
         Pass
         {
+            ColorMask [_ColorMask]
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag

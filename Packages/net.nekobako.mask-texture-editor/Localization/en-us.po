@@ -17,6 +17,9 @@ msgstr "Open Texture"
 msgid "texture"
 msgstr "Texture"
 
+msgid "color-mask"
+msgstr "Color Channel"
+
 msgid "renderer"
 msgstr "Renderer"
 

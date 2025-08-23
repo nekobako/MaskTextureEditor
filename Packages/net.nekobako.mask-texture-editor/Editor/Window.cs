@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using CustomLocalization4EditorExtension;
 #if MTE_NDMF
 using nadena.dev.ndmf.preview;
@@ -18,6 +19,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private static class Styles
         {
             public static readonly GUIStyle Toolbar = new("Toolbar")
+            {
+                fixedHeight = 0.0f,
+            };
+            public static readonly GUIStyle Toggle = new("button")
             {
                 fixedHeight = 0.0f,
             };
@@ -282,6 +287,17 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 EditorGUILayout.ObjectField(
                     CL4EE.Tr("texture"),
                     m_Texture, typeof(Texture2D), true, GUILayout.Height(EditorGUIUtility.singleLineHeight));
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.PrefixLabel(CL4EE.Tr("color-mask"));
+
+                var mask = ColorWriteMask.Alpha;
+                mask |= GUILayout.Toggle((m_TexturePainter.ColorMask & ColorWriteMask.Red) != 0, "R", Styles.Toggle) ? ColorWriteMask.Red : 0;
+                mask |= GUILayout.Toggle((m_TexturePainter.ColorMask & ColorWriteMask.Green) != 0, "G", Styles.Toggle) ? ColorWriteMask.Green : 0;
+                mask |= GUILayout.Toggle((m_TexturePainter.ColorMask & ColorWriteMask.Blue) != 0, "B", Styles.Toggle) ? ColorWriteMask.Blue : 0;
+                m_TexturePainter.ColorMask = mask;
             }
 
             EditorGUILayout.Space();

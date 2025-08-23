@@ -2,6 +2,7 @@ Shader "Hidden/MaskTextureEditor/Inverse"
 {
     Properties
     {
+        _ColorMask("Color Mask", Int) = 15
         _MainTex("Texture", 2D) = "white" {}
     }
 
@@ -14,6 +15,8 @@ Shader "Hidden/MaskTextureEditor/Inverse"
 
         Pass
         {
+            ColorMask [_ColorMask]
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag

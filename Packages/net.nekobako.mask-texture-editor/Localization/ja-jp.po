@@ -17,6 +17,9 @@ msgstr "テクスチャを開く"
 msgid "texture"
 msgstr "テクスチャ"
 
+msgid "color-mask"
+msgstr "カラーチャンネル"
+
 msgid "renderer"
 msgstr "レンダラー"
 

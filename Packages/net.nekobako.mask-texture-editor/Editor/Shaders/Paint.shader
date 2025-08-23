@@ -2,6 +2,7 @@ Shader "Hidden/MaskTextureEditor/Paint"
 {
     Properties
     {
+        _ColorMask("Color Mask", Int) = 15
         _MainTex("Texture", 2D) = "white" {}
         _BrushLine("Brush Line", Vector) = (0.5, 0.5, 0.5, 0.5)
         _BrushSize("Brush Size", Float) = 100.0
@@ -17,6 +18,8 @@ Shader "Hidden/MaskTextureEditor/Paint"
 
         Pass
         {
+            ColorMask [_ColorMask]
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
