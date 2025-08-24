@@ -6,13 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 ### Added
-- Implement color channel selector.
-- Implement brush hardness.
-- Implement brush strength.
-- Implement brush density.
 
 ### Changed
-- Change min opacity of the view.
 
 ### Deprecated
 
@@ -21,6 +16,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 ### Security
+
+## [1.2.0] - 2025-08-30
+### Added
+- Implement color channel selector.
+- Implement brush hardness.
+- Implement brush strength.
+- Implement brush density.
+
+### Changed
+- Change min opacity of the view.
 
 ## [1.1.0] - 2025-07-22
 ### Added
