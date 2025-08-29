@@ -47,6 +47,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
             public static bool BrushSize => !Event.current.alt && !Event.current.shift && (Event.current.control || Event.current.command);
             public static bool BrushHardness => Event.current.alt && !Event.current.shift && (Event.current.control || Event.current.command);
             public static bool BrushStrength => !Event.current.alt && Event.current.shift && (Event.current.control || Event.current.command);
+            public static bool BrushDensity => Event.current.alt && Event.current.shift && (Event.current.control || Event.current.command);
         }
 
         private const float k_ViewScaleMin = 0.1f;
@@ -64,6 +65,9 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const float k_BrushStrengthMin = 0.0f;
         private const float k_BrushStrengthMax = 1.0f;
         private const float k_BrushStrengthFactor = 0.01f;
+        private const float k_BrushDensityMin = 1.0f;
+        private const float k_BrushDensityMax = 100.0f;
+        private const float k_BrushDensityFactor = 0.1f;
 
         [SerializeField]
         private Texture2D m_Texture = null!; // Initialize in Open
@@ -290,6 +294,8 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         private void DrawToolbar(bool expand)
         {
+            EditorGUIUtility.labelWidth = 160.0f;
+
             using (new EditorGUI.DisabledScope(true))
             {
                 EditorGUILayout.ObjectField(
@@ -361,6 +367,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
             m_TexturePainter.BrushStrength = EditorGUILayout.Slider(
                 CL4EE.Tr("brush-strength"),
                 m_TexturePainter.BrushStrength, k_BrushStrengthMin, k_BrushStrengthMax);
+
+            m_TexturePainter.BrushDensity = EditorGUILayout.Slider(
+                CL4EE.Tr("brush-density"),
+                m_TexturePainter.BrushDensity, k_BrushDensityMin, k_BrushDensityMax);
 
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -459,7 +469,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
                     {
                         // Paint the texture
                         var pos = Event.current.mousePosition - rect.center + m_ViewPosition;
-                        m_TexturePainter.Paint(pos / m_ViewScale, pos / m_ViewScale);
+                        m_TexturePainter.Paint(pos / m_ViewScale, false);
                     }
                     Repaint();
                     break;
@@ -483,7 +493,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
                     {
                         // Paint the texture
                         var pos = Event.current.mousePosition - rect.center + m_ViewPosition;
-                        m_TexturePainter.Paint((pos - delta) / m_ViewScale, pos / m_ViewScale);
+                        m_TexturePainter.Paint(pos / m_ViewScale, true);
                     }
                     else
                     {
@@ -527,6 +537,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
                         // Adjust the brush strength
                         m_TexturePainter.BrushStrength -= delta * k_BrushStrengthFactor;
                         m_TexturePainter.BrushStrength = Mathf.Clamp(m_TexturePainter.BrushStrength, k_BrushStrengthMin, k_BrushStrengthMax);
+                    }
+                    else if (Events.BrushDensity)
+                    {
+                        // Adjust the brush density
+                        m_TexturePainter.BrushDensity *= 1.0f - delta * k_BrushDensityFactor;
+                        m_TexturePainter.BrushDensity = Mathf.Clamp(m_TexturePainter.BrushDensity, k_BrushDensityMin, k_BrushDensityMax);
                     }
                     else
                     {

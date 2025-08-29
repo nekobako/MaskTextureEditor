@@ -4,11 +4,11 @@ Shader "Hidden/MaskTextureEditor/Paint"
     {
         _ColorMask("Color Mask", Int) = 15
         _MainTex("Texture", 2D) = "white" {}
-        _BrushLine("Brush Line", Vector) = (0.5, 0.5, 0.5, 0.5)
         _BrushSize("Brush Size", Float) = 100.0
         _BrushHardness("Brush Hardness", Float) = 1.0
         _BrushStrength("Brush Strength", Float) = 1.0
         _BrushColor("Brush Color", Color) = (1.0, 1.0, 1.0, 1.0)
+        _BrushPosition("Brush Position", Vector) = (0.5, 0.5, 0.0, 0.0)
     }
 
     SubShader
@@ -44,11 +44,11 @@ Shader "Hidden/MaskTextureEditor/Paint"
             float4 _MainTex_ST;
             float4 _MainTex_TexelSize;
 
-            float4 _BrushLine;
             float _BrushSize;
             float _BrushHardness;
             float _BrushStrength;
             float4 _BrushColor;
+            float2 _BrushPosition;
 
             v2f vert(appdata v)
             {
@@ -60,13 +60,8 @@ Shader "Hidden/MaskTextureEditor/Paint"
 
             float4 frag(v2f i) : SV_Target
             {
-                float2 a = _BrushLine.xy * _MainTex_TexelSize.xy;
-                float2 b = _BrushLine.zw * _MainTex_TexelSize.xy;
                 float r = _BrushSize * _MainTex_TexelSize.xy * 0.5;
-                float d =
-                    dot(i.uv - a, b - a) <= 0 ? distance(i.uv, a) :
-                    dot(i.uv - b, a - b) <= 0 ? distance(i.uv, b) :
-                    abs((i.uv - a).x * (b - a).y - (i.uv - a).y * (b - a).x) / distance(a, b);
+                float d = distance(i.uv, _BrushPosition.xy * _MainTex_TexelSize.xy);
                 return lerp(tex2D(_MainTex, i.uv), _BrushColor, (1.0 - smoothstep(r * _BrushHardness, r, d)) * _BrushStrength);
             }
             ENDCG

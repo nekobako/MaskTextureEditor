@@ -12,11 +12,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         private static readonly int s_ColorMaskPropertyId = Shader.PropertyToID("_ColorMask");
         private static readonly int s_ColorPropertyId = Shader.PropertyToID("_Color");
-        private static readonly int s_BrushLinePropertyId = Shader.PropertyToID("_BrushLine");
         private static readonly int s_BrushSizePropertyId = Shader.PropertyToID("_BrushSize");
         private static readonly int s_BrushHardnessPropertyId = Shader.PropertyToID("_BrushHardness");
         private static readonly int s_BrushStrengthPropertyId = Shader.PropertyToID("_BrushStrength");
         private static readonly int s_BrushColorPropertyId = Shader.PropertyToID("_BrushColor");
+        private static readonly int s_BrushPositionPropertyId = Shader.PropertyToID("_BrushPosition");
 
         [SerializeField]
         private RenderTexture m_Target = null!; // Initialize in Init
@@ -46,7 +46,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private float m_BrushStrength = 1.0f;
 
         [SerializeField]
+        private float m_BrushDensity = 10.0f;
+
+        [SerializeField]
         private Color m_BrushColor = Color.black;
+
+        private Vector2 m_BrushPosition = Vector2.zero;
 
         public RenderTexture Texture => m_Target;
         public Vector2 TextureSize => new(m_Target.width, m_Target.height);
@@ -73,6 +78,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
         {
             get => m_BrushStrength;
             set => m_BrushStrength = value;
+        }
+
+        public float BrushDensity
+        {
+            get => m_BrushDensity;
+            set => m_BrushDensity = value;
         }
 
         public Color BrushColor
@@ -189,19 +200,35 @@ namespace net.nekobako.MaskTextureEditor.Editor
             RenderTexture.active = null;
         }
 
-        public void Paint(Vector2 positionA, Vector2 positionB)
+        public void Paint(Vector2 position, bool stroke)
         {
             m_PaintMaterial.SetInt(s_ColorMaskPropertyId, (int)m_ColorMask);
-            m_PaintMaterial.SetVector(s_BrushLinePropertyId, new(
-                positionA.x, TextureSize.y - positionA.y,
-                positionB.x, TextureSize.y - positionB.y));
             m_PaintMaterial.SetFloat(s_BrushSizePropertyId, m_BrushSize);
             m_PaintMaterial.SetFloat(s_BrushHardnessPropertyId, m_BrushHardness);
             m_PaintMaterial.SetFloat(s_BrushStrengthPropertyId, m_BrushStrength);
             m_PaintMaterial.SetColor(s_BrushColorPropertyId, m_BrushColor);
 
-            Graphics.Blit(m_Target, m_Buffer);
-            Graphics.Blit(m_Buffer, m_Target, m_PaintMaterial);
+            if (stroke)
+            {
+                var delta = position - m_BrushPosition;
+                for (var i = 0; i < Mathf.FloorToInt(delta.magnitude / (m_BrushSize / m_BrushDensity)); i++)
+                {
+                    m_BrushPosition += delta.normalized * (m_BrushSize / m_BrushDensity);
+                    m_PaintMaterial.SetVector(s_BrushPositionPropertyId, new(m_BrushPosition.x, TextureSize.y - m_BrushPosition.y));
+
+                    Graphics.Blit(m_Target, m_Buffer);
+                    Graphics.Blit(m_Buffer, m_Target, m_PaintMaterial);
+                }
+            }
+            else
+            {
+                m_BrushPosition = position;
+                m_PaintMaterial.SetVector(s_BrushPositionPropertyId, new(m_BrushPosition.x, TextureSize.y - m_BrushPosition.y));
+
+                Graphics.Blit(m_Target, m_Buffer);
+                Graphics.Blit(m_Buffer, m_Target, m_PaintMaterial);
+            }
+
             RenderTexture.active = null;
         }
 
