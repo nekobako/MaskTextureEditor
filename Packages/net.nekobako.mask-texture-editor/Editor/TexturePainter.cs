@@ -14,6 +14,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private static readonly int s_ColorPropertyId = Shader.PropertyToID("_Color");
         private static readonly int s_BrushLinePropertyId = Shader.PropertyToID("_BrushLine");
         private static readonly int s_BrushSizePropertyId = Shader.PropertyToID("_BrushSize");
+        private static readonly int s_BrushHardnessPropertyId = Shader.PropertyToID("_BrushHardness");
         private static readonly int s_BrushColorPropertyId = Shader.PropertyToID("_BrushColor");
 
         [SerializeField]
@@ -38,6 +39,9 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private float m_BrushSize = 100.0f;
 
         [SerializeField]
+        private float m_BrushHardness = 1.0f;
+
+        [SerializeField]
         private Color m_BrushColor = Color.black;
 
         public RenderTexture Texture => m_Target;
@@ -53,6 +57,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
         {
             get => m_BrushSize;
             set => m_BrushSize = value;
+        }
+
+        public float BrushHardness
+        {
+            get => m_BrushHardness;
+            set => m_BrushHardness = value;
         }
 
         public Color BrushColor
@@ -122,7 +132,8 @@ namespace net.nekobako.MaskTextureEditor.Editor
                     Event.current.mousePosition,
                     Quaternion.identity,
                     m_BrushSize * rect.size / TextureSize);
-                Handles.DrawSolidDisc(Vector3.zero, Vector3.forward, 0.5f);
+                Handles.DrawWireDisc(Vector3.zero, Vector3.forward, 0.5f);
+                Handles.DrawSolidDisc(Vector3.zero, Vector3.forward, 0.5f * m_BrushHardness);
                 Handles.matrix = Matrix4x4.identity;
             }
         }
@@ -171,6 +182,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 positionA.x, TextureSize.y - positionA.y,
                 positionB.x, TextureSize.y - positionB.y));
             m_PaintMaterial.SetFloat(s_BrushSizePropertyId, m_BrushSize);
+            m_PaintMaterial.SetFloat(s_BrushHardnessPropertyId, m_BrushHardness);
             m_PaintMaterial.SetColor(s_BrushColorPropertyId, m_BrushColor);
 
             Graphics.Blit(m_Target, m_Buffer);

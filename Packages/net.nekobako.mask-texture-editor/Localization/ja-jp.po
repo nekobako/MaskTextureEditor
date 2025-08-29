@@ -27,13 +27,16 @@ msgid "slot"
 msgstr "マテリアルスロット"
 
 msgid "view-scale"
-msgstr "表示倍率 (Scroll)"
+msgstr "表示倍率"
 
 msgid "view-opacity"
-msgstr "表示透明度 (Alt + Scroll)"
+msgstr "表示透明度 (Shift)"
 
 msgid "brush-size"
-msgstr "ブラシサイズ (Shift + Scroll)"
+msgstr "ブラシサイズ (Ctrl)"
+
+msgid "brush-hardness"
+msgstr "ブラシ硬度 (Ctrl + Alt)"
 
 msgid "brush-color"
 msgstr "ブラシカラー"

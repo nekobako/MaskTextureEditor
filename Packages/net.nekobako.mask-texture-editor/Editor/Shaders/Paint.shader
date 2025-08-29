@@ -6,6 +6,7 @@ Shader "Hidden/MaskTextureEditor/Paint"
         _MainTex("Texture", 2D) = "white" {}
         _BrushLine("Brush Line", Vector) = (0.5, 0.5, 0.5, 0.5)
         _BrushSize("Brush Size", Float) = 100.0
+        _BrushHardness("Brush Hardness", Float) = 1.0
         _BrushColor("Brush Color", Color) = (1.0, 1.0, 1.0, 1.0)
     }
 
@@ -44,6 +45,7 @@ Shader "Hidden/MaskTextureEditor/Paint"
 
             float4 _BrushLine;
             float _BrushSize;
+            float _BrushHardness;
             float4 _BrushColor;
 
             v2f vert(appdata v)
@@ -63,7 +65,7 @@ Shader "Hidden/MaskTextureEditor/Paint"
                     dot(i.uv - a, b - a) <= 0 ? distance(i.uv, a) :
                     dot(i.uv - b, a - b) <= 0 ? distance(i.uv, b) :
                     abs((i.uv - a).x * (b - a).y - (i.uv - a).y * (b - a).x) / distance(a, b);
-                return lerp(tex2D(_MainTex, i.uv), _BrushColor, d < r);
+                return lerp(_BrushColor, tex2D(_MainTex, i.uv), smoothstep(r * _BrushHardness, r, d));
             }
             ENDCG
         }

@@ -27,13 +27,16 @@ msgid "slot"
 msgstr "Material Slot"
 
 msgid "view-scale"
-msgstr "View Scale (Scroll)"
+msgstr "View Scale"
 
 msgid "view-opacity"
-msgstr "View Opacity (Alt + Scroll)"
+msgstr "View Opacity (Shift)"
 
 msgid "brush-size"
-msgstr "Brush Size (Shift + Scroll)"
+msgstr "Brush Size (Ctrl)"
+
+msgid "brush-hardness"
+msgstr "Brush Hardness (Ctrl + Alt)"
 
 msgid "brush-color"
 msgstr "Brush Color"

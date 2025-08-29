@@ -39,12 +39,13 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private static class Events
         {
             public static bool Paint => Event.current.button == 0
-                && !Event.current.control && !Event.current.command
                 && !Event.current.alt
-                && !Event.current.shift;
-            public static bool ViewScale => Event.current.control || Event.current.command;
-            public static bool ViewOpacity => Event.current.alt;
-            public static bool BrushSize => Event.current.shift;
+                && !Event.current.shift
+                && !(Event.current.control || Event.current.command);
+            public static bool ViewScale => Event.current.alt && !Event.current.shift && !(Event.current.control || Event.current.command);
+            public static bool ViewOpacity => !Event.current.alt && Event.current.shift && !(Event.current.control || Event.current.command);
+            public static bool BrushSize => !Event.current.alt && !Event.current.shift && (Event.current.control || Event.current.command);
+            public static bool BrushHardness => Event.current.alt && !Event.current.shift && (Event.current.control || Event.current.command);
         }
 
         private const float k_ViewScaleMin = 0.1f;
@@ -56,6 +57,9 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const float k_BrushSizeMin = 10.0f;
         private const float k_BrushSizeMax = 1000.0f;
         private const float k_BrushSizeFactor = 0.1f;
+        private const float k_BrushHardnessMin = 0.0f;
+        private const float k_BrushHardnessMax = 1.0f;
+        private const float k_BrushHardnessFactor = 0.01f;
 
         [SerializeField]
         private Texture2D m_Texture = null!; // Initialize in Open
@@ -346,6 +350,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 CL4EE.Tr("brush-size"),
                 m_TexturePainter.BrushSize, k_BrushSizeMin, k_BrushSizeMax);
 
+            m_TexturePainter.BrushHardness = EditorGUILayout.Slider(
+                CL4EE.Tr("brush-hardness"),
+                m_TexturePainter.BrushHardness, k_BrushHardnessMin, k_BrushHardnessMax);
+
             using (new EditorGUILayout.HorizontalScope())
             {
                 EditorGUILayout.PrefixLabel(CL4EE.Tr("brush-color"));
@@ -499,6 +507,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
                         // Adjust the brush size
                         m_TexturePainter.BrushSize *= 1.0f - delta * k_BrushSizeFactor;
                         m_TexturePainter.BrushSize = Mathf.Clamp(m_TexturePainter.BrushSize, k_BrushSizeMin, k_BrushSizeMax);
+                    }
+                    else if (Events.BrushHardness)
+                    {
+                        // Adjust the brush hardness
+                        m_TexturePainter.BrushHardness -= delta * k_BrushHardnessFactor;
+                        m_TexturePainter.BrushHardness = Mathf.Clamp(m_TexturePainter.BrushHardness, k_BrushHardnessMin, k_BrushHardnessMax);
                     }
                     else
                     {
