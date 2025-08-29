@@ -38,6 +38,9 @@ msgstr "ブラシサイズ (Ctrl)"
 msgid "brush-hardness"
 msgstr "ブラシ硬度 (Ctrl + Alt)"
 
+msgid "brush-strength"
+msgstr "ブラシ強度 (Ctrl + Shift)"
+
 msgid "brush-color"
 msgstr "ブラシカラー"
 

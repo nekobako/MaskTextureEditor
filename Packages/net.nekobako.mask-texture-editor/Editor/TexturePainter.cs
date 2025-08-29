@@ -15,6 +15,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private static readonly int s_BrushLinePropertyId = Shader.PropertyToID("_BrushLine");
         private static readonly int s_BrushSizePropertyId = Shader.PropertyToID("_BrushSize");
         private static readonly int s_BrushHardnessPropertyId = Shader.PropertyToID("_BrushHardness");
+        private static readonly int s_BrushStrengthPropertyId = Shader.PropertyToID("_BrushStrength");
         private static readonly int s_BrushColorPropertyId = Shader.PropertyToID("_BrushColor");
 
         [SerializeField]
@@ -42,6 +43,9 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private float m_BrushHardness = 1.0f;
 
         [SerializeField]
+        private float m_BrushStrength = 1.0f;
+
+        [SerializeField]
         private Color m_BrushColor = Color.black;
 
         public RenderTexture Texture => m_Target;
@@ -63,6 +67,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
         {
             get => m_BrushHardness;
             set => m_BrushHardness = value;
+        }
+
+        public float BrushStrength
+        {
+            get => m_BrushStrength;
+            set => m_BrushStrength = value;
         }
 
         public Color BrushColor
@@ -127,13 +137,17 @@ namespace net.nekobako.MaskTextureEditor.Editor
             // Draw the brush
             if (brush)
             {
-                Handles.color = GUI.color * m_BrushColor;
                 Handles.matrix = Matrix4x4.TRS(
                     Event.current.mousePosition,
                     Quaternion.identity,
                     m_BrushSize * rect.size / TextureSize);
+
+                Handles.color = new(GUI.color.r * m_BrushColor.r, GUI.color.g * m_BrushColor.g, GUI.color.b * m_BrushColor.b, GUI.color.a * m_BrushColor.a);
                 Handles.DrawWireDisc(Vector3.zero, Vector3.forward, 0.5f);
+
+                Handles.color = new(GUI.color.r * m_BrushColor.r, GUI.color.g * m_BrushColor.g, GUI.color.b * m_BrushColor.b, GUI.color.a * m_BrushColor.a * m_BrushStrength);
                 Handles.DrawSolidDisc(Vector3.zero, Vector3.forward, 0.5f * m_BrushHardness);
+
                 Handles.matrix = Matrix4x4.identity;
             }
         }
@@ -183,6 +197,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 positionB.x, TextureSize.y - positionB.y));
             m_PaintMaterial.SetFloat(s_BrushSizePropertyId, m_BrushSize);
             m_PaintMaterial.SetFloat(s_BrushHardnessPropertyId, m_BrushHardness);
+            m_PaintMaterial.SetFloat(s_BrushStrengthPropertyId, m_BrushStrength);
             m_PaintMaterial.SetColor(s_BrushColorPropertyId, m_BrushColor);
 
             Graphics.Blit(m_Target, m_Buffer);

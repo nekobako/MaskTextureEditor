@@ -46,6 +46,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
             public static bool ViewOpacity => !Event.current.alt && Event.current.shift && !(Event.current.control || Event.current.command);
             public static bool BrushSize => !Event.current.alt && !Event.current.shift && (Event.current.control || Event.current.command);
             public static bool BrushHardness => Event.current.alt && !Event.current.shift && (Event.current.control || Event.current.command);
+            public static bool BrushStrength => !Event.current.alt && Event.current.shift && (Event.current.control || Event.current.command);
         }
 
         private const float k_ViewScaleMin = 0.1f;
@@ -60,6 +61,9 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const float k_BrushHardnessMin = 0.0f;
         private const float k_BrushHardnessMax = 1.0f;
         private const float k_BrushHardnessFactor = 0.01f;
+        private const float k_BrushStrengthMin = 0.0f;
+        private const float k_BrushStrengthMax = 1.0f;
+        private const float k_BrushStrengthFactor = 0.01f;
 
         [SerializeField]
         private Texture2D m_Texture = null!; // Initialize in Open
@@ -354,6 +358,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 CL4EE.Tr("brush-hardness"),
                 m_TexturePainter.BrushHardness, k_BrushHardnessMin, k_BrushHardnessMax);
 
+            m_TexturePainter.BrushStrength = EditorGUILayout.Slider(
+                CL4EE.Tr("brush-strength"),
+                m_TexturePainter.BrushStrength, k_BrushStrengthMin, k_BrushStrengthMax);
+
             using (new EditorGUILayout.HorizontalScope())
             {
                 EditorGUILayout.PrefixLabel(CL4EE.Tr("brush-color"));
@@ -513,6 +521,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
                         // Adjust the brush hardness
                         m_TexturePainter.BrushHardness -= delta * k_BrushHardnessFactor;
                         m_TexturePainter.BrushHardness = Mathf.Clamp(m_TexturePainter.BrushHardness, k_BrushHardnessMin, k_BrushHardnessMax);
+                    }
+                    else if (Events.BrushStrength)
+                    {
+                        // Adjust the brush strength
+                        m_TexturePainter.BrushStrength -= delta * k_BrushStrengthFactor;
+                        m_TexturePainter.BrushStrength = Mathf.Clamp(m_TexturePainter.BrushStrength, k_BrushStrengthMin, k_BrushStrengthMax);
                     }
                     else
                     {
