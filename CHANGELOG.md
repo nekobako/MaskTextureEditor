@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Implement brush density.
 
 ### Changed
+- Change min opacity of the view.
 
 ### Deprecated
 

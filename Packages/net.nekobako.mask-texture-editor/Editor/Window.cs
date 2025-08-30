@@ -53,7 +53,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const float k_ViewScaleMin = 0.1f;
         private const float k_ViewScaleMax = 10.0f;
         private const float k_ViewScaleFactor = 0.1f;
-        private const float k_ViewOpacityMin = 0.1f;
+        private const float k_ViewOpacityMin = 0.0f;
         private const float k_ViewOpacityMax = 1.0f;
         private const float k_ViewOpacityFactor = 0.01f;
         private const float k_BrushSizeMin = 10.0f;
