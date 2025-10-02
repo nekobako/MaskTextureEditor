@@ -14,7 +14,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
     public class Window : EditorWindow
     {
         [AssemblyCL4EELocalization]
-        private static Localization Localization => new("1b6661244fd2dc646af94ebf766dd8aa", "ja-jp");
+        private static Localization Localization { get; } = new("1b6661244fd2dc646af94ebf766dd8aa", "ja-jp");
 
         private static class Styles
         {
