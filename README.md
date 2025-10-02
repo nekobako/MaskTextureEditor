@@ -10,7 +10,7 @@ Extracted from [AAO: Avatar Optimizer](https://github.com/anatawa12/AvatarOptimi
 ## Installation
 1. Press `Add to VCC` button in [VPM Listing](https://vpm.nekobako.net) and register the repository.
 2. Press `Manage Project` button at your project in VCC.
-4. Press `+` button at the right of `Mask Texture Editor` package.
+3. Press `+` button at the right of `Mask Texture Editor` package.
 
 ## Usage
 - `Tools > Mask Texture Editor > New Texture`

@@ -10,7 +10,7 @@ Unity Editor 上でマスクテクスチャを描くためのツールです。
 ## 導入
 1. [VPM Listing](https://vpm.nekobako.net) の `Add to VCC` ボタンを押してリポジトリを登録します。
 2. VCC でプロジェクトの `Manage Project` ボタンを押します。
-4. `Mask Texture Editor` パッケージの右にある `+` ボタンを押します。
+3. `Mask Texture Editor` パッケージの右にある `+` ボタンを押します。
 
 ## 使い方
 - `Tools > Mask Texture Editor > New Texture`
