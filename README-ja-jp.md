@@ -5,11 +5,11 @@ Unity Editor 上でマスクテクスチャを描くためのツールです。
 
 [AAO: Avatar Optimizer](https://github.com/anatawa12/AvatarOptimizer) から切り出されました。
 
-![Mask Texture Editor](https://github.com/user-attachments/assets/3e374d90-9a71-4de7-8cf6-eeb0a16453a3)
+![マスクテクスチャエディター](https://github.com/user-attachments/assets/3e374d90-9a71-4de7-8cf6-eeb0a16453a3)
 
-## 導入
-1. [VPM Listing](https://vpm.nekobako.net) の `Add to VCC` ボタンを押してリポジトリを登録します。
-2. VCC でプロジェクトの `Manage Project` ボタンを押します。
+## インストール
+1. [VPM Listing](https://vpm.nekobako.net) の `Add to VCC` ボタンを押してリポジトリを追加します。
+2. プロジェクトの `Manage Project` ボタンを押します。
 3. `Mask Texture Editor` パッケージの右にある `+` ボタンを押します。
 
 ## 使い方
