@@ -1,0 +1,93 @@
+msgid ""
+msgstr ""
+"Language: zh-Hant\n"
+
+msgid "locale:zh-Hant"
+msgstr "繁體中文"
+
+msgid "title"
+msgstr "遮罩貼圖編輯器"
+
+msgid "create"
+msgstr "新貼圖"
+
+msgid "select"
+msgstr "開啟貼圖"
+
+msgid "texture"
+msgstr "貼圖"
+
+msgid "color-mask"
+msgstr "色彩通道"
+
+msgid "renderer"
+msgstr "渲染器"
+
+msgid "slot"
+msgstr "材質槽"
+
+msgid "view-scale"
+msgstr "視圖縮放"
+
+msgid "view-opacity"
+msgstr "視圖透明度 (Shift)"
+
+msgid "brush-size"
+msgstr "筆刷大小 (Ctrl)"
+
+msgid "brush-hardness"
+msgstr "筆刷硬度 (Ctrl + Alt)"
+
+msgid "brush-strength"
+msgstr "筆刷強度 (Ctrl + Shift)"
+
+msgid "brush-density"
+msgstr "筆刷密度 (Ctrl + Alt + Shift)"
+
+msgid "brush-color"
+msgstr "筆刷顏色"
+
+msgid "black"
+msgstr "黑"
+
+msgid "white"
+msgstr "白"
+
+msgid "fill-black"
+msgstr "填滿黑色"
+
+msgid "fill-white"
+msgstr "填滿白色"
+
+msgid "inverse"
+msgstr "反轉顏色"
+
+msgid "reset-view"
+msgstr "縮放視圖至視窗大小"
+
+msgid "save"
+msgstr "儲存"
+
+msgid "save-changes-message"
+msgstr "有變更尚未儲存，是否儲存變更？"
+
+msgid "save-changes-button-save"
+msgstr "儲存"
+
+msgid "save-changes-button-discard"
+msgstr "放棄"
+
+msgid "save-changes-button-cancel"
+msgstr "取消"
+
+msgid "error-title"
+msgstr "錯誤"
+
+msgid "error-message-create-failed"
+msgstr "創建貼圖失敗。詳情請參閱日誌。"
+
+msgid "error-message-select-failed"
+msgstr "選取貼圖失敗。詳情請參閱日誌。"
+
+msgid "error-message-save-failed"
+msgstr "儲存貼圖失敗。詳情請參閱日誌。"
