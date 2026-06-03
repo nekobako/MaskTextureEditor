@@ -30,7 +30,7 @@ msgid "view-scale"
 msgstr "視圖縮放"
 
 msgid "view-opacity"
-msgstr "視圖透明度(Shift)"
+msgstr "視圖透明度 (Shift)"
 
 msgid "brush-size"
 msgstr "筆刷大小 (Ctrl)"
