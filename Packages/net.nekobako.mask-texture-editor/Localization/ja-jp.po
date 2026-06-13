@@ -35,6 +35,15 @@ msgstr "表示透明度 (Shift)"
 msgid "brush-size"
 msgstr "ブラシサイズ (Ctrl)"
 
+msgid "brush-mode"
+msgstr "ブラシモード"
+
+msgid "brush-mode-circle"
+msgstr "円形"
+
+msgid "brush-mode-triangle"
+msgstr "面"
+
 msgid "brush-hardness"
 msgstr "ブラシ硬度 (Ctrl + Alt)"
 

@@ -102,6 +102,8 @@ namespace net.nekobako.MaskTextureEditor.Editor
         [SerializeField]
         private int m_SavedTextureInstanceId = 0;
 
+        private bool m_IsPaintingStroke = false;
+
 #if MTE_NDMF
         public static readonly PublishedValue<bool> IsOpen = new(false);
 
@@ -153,6 +155,14 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 (token == null || window.m_Token == token);
         }
 
+        internal static void RepaintIfOpen()
+        {
+            if (HasOpenInstances<Window>())
+            {
+                GetWindow<Window>(string.Empty, false).Repaint();
+            }
+        }
+
         public static void TryOpen(Texture2D texture, Renderer? renderer = null, int? slot = null, string? token = null)
         {
             TryClose();
@@ -188,16 +198,16 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 CL4EE.Tr("save-changes-button-discard")))
             {
                 case 0:
-                {
-                    window.SaveChanges();
-                    window.Close();
-                    return;
-                }
+                    {
+                        window.SaveChanges();
+                        window.Close();
+                        return;
+                    }
                 case 2:
-                {
-                    window.Close();
-                    return;
-                }
+                    {
+                        window.Close();
+                        return;
+                    }
             }
         }
 
@@ -353,13 +363,26 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
             EditorGUILayout.Space();
 
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.PrefixLabel(CL4EE.Tr("brush-mode"));
+
+                var modes = new[] { BrushMode.Circle, BrushMode.Triangle };
+                var texts = new[] { CL4EE.Tr("brush-mode-circle"), CL4EE.Tr("brush-mode-triangle") };
+                var index = Array.IndexOf(modes, m_TexturePainter.BrushMode);
+                m_TexturePainter.BrushMode = modes[GUILayout.Toolbar(index, texts)];
+            }
+
             m_TexturePainter.BrushSize = EditorGUILayout.Slider(
                 CL4EE.Tr("brush-size"),
                 m_TexturePainter.BrushSize, k_BrushSizeMin, k_BrushSizeMax);
 
-            m_TexturePainter.BrushHardness = EditorGUILayout.Slider(
-                CL4EE.Tr("brush-hardness"),
-                m_TexturePainter.BrushHardness, k_BrushHardnessMin, k_BrushHardnessMax);
+            using (new EditorGUI.DisabledScope(m_TexturePainter.BrushMode == BrushMode.Triangle))
+            {
+                m_TexturePainter.BrushHardness = EditorGUILayout.Slider(
+                    CL4EE.Tr("brush-hardness"),
+                    m_TexturePainter.BrushHardness, k_BrushHardnessMin, k_BrushHardnessMax);
+            }
 
             m_TexturePainter.BrushStrength = EditorGUILayout.Slider(
                 CL4EE.Tr("brush-strength"),
@@ -438,130 +461,151 @@ namespace net.nekobako.MaskTextureEditor.Editor
             switch (type)
             {
                 case EventType.Repaint:
-                {
-                    if (m_RequestResetView)
                     {
-                        // Fit the view to the window
-                        m_ViewScale = Mathf.Min(
-                            rect.size.x / m_TexturePainter.TextureSize.x,
-                            rect.size.y / m_TexturePainter.TextureSize.y);
-                        m_ViewScale = Mathf.Clamp(m_ViewScale, k_ViewScaleMin, k_ViewScaleMax);
-                        m_ViewPosition = m_TexturePainter.TextureSize * (m_ViewScale * 0.5f);
-                        m_RequestResetView = false;
-                        Repaint();
+                        if (m_RequestResetView)
+                        {
+                            // Fit the view to the window
+                            m_ViewScale = Mathf.Min(
+                                rect.size.x / m_TexturePainter.TextureSize.x,
+                                rect.size.y / m_TexturePainter.TextureSize.y);
+                            m_ViewScale = Mathf.Clamp(m_ViewScale, k_ViewScaleMin, k_ViewScaleMax);
+                            m_ViewPosition = m_TexturePainter.TextureSize * (m_ViewScale * 0.5f);
+                            m_RequestResetView = false;
+                            Repaint();
+                        }
+                        break;
                     }
-                    break;
-                }
                 case EventType.MouseMove:
-                {
-                    Repaint();
-                    break;
-                }
+                    {
+                        Repaint();
+                        break;
+                    }
                 case EventType.MouseDown when rect.Contains(Event.current.mousePosition):
-                {
-                    // Set HotControl to continue dragging outside the window
-                    GUIUtility.hotControl = control;
-
-                    if (Events.Paint)
                     {
-                        // Paint the texture
-                        var pos = Event.current.mousePosition - rect.center + m_ViewPosition;
-                        m_TexturePainter.Paint(pos / m_ViewScale, false);
+                        // Set HotControl to continue dragging outside the window
+                        GUIUtility.hotControl = control;
+
+                        if (Events.Paint)
+                        {
+                            // Paint the texture
+                            var pos = Event.current.mousePosition - rect.center + m_ViewPosition;
+                            GetUvTriangles(out var points, out var indices);
+                            m_TexturePainter.BeginStroke(pos / m_ViewScale, points, indices);
+                            m_IsPaintingStroke = true;
+                        }
+                        Repaint();
+                        break;
                     }
-                    Repaint();
-                    break;
-                }
                 case EventType.MouseUp when GUIUtility.hotControl == control:
-                {
-                    // Unset HotControl to allow other controls to respond
-                    GUIUtility.hotControl = 0;
+                    {
+                        // Unset HotControl to allow other controls to respond
+                        GUIUtility.hotControl = 0;
 
-                    if (Events.Paint)
-                    {
-                        m_TextureUndoStack.Record();
+                        if (m_IsPaintingStroke)
+                        {
+                            if (m_TexturePainter.EndStroke())
+                            {
+                                m_TextureUndoStack.Record();
+                            }
+                            m_IsPaintingStroke = false;
+                        }
+                        Repaint();
+                        break;
                     }
-                    Repaint();
-                    break;
-                }
                 case EventType.MouseDrag when GUIUtility.hotControl == control:
-                {
-                    var delta = Event.current.delta;
-                    if (Events.Paint)
                     {
-                        // Paint the texture
-                        var pos = Event.current.mousePosition - rect.center + m_ViewPosition;
-                        m_TexturePainter.Paint(pos / m_ViewScale, true);
+                        var delta = Event.current.delta;
+                        if (m_IsPaintingStroke)
+                        {
+                            // Paint the texture
+                            var pos = Event.current.mousePosition - rect.center + m_ViewPosition;
+                            GetUvTriangles(out var points, out var indices);
+                            m_TexturePainter.ContinueStroke(pos / m_ViewScale, points, indices);
+                        }
+                        else
+                        {
+                            // Move the view
+                            m_ViewPosition -= delta;
+                        }
+                        Repaint();
+                        break;
                     }
-                    else
-                    {
-                        // Move the view
-                        m_ViewPosition -= delta;
-                    }
-                    Repaint();
-                    break;
-                }
                 case EventType.ScrollWheel when rect.Contains(Event.current.mousePosition):
-                {
-                    var delta = Event.current.delta.x + Event.current.delta.y;
-                    if (Events.ViewScale)
                     {
-                        // Scale the view
-                        var prev = m_ViewScale;
-                        m_ViewScale *= 1.0f - delta * k_ViewScaleFactor;
-                        m_ViewScale = Mathf.Clamp(m_ViewScale, k_ViewScaleMin, k_ViewScaleMax);
-                        m_ViewPosition -= m_ViewPosition * (1.0f - m_ViewScale / prev);
+                        var delta = Event.current.delta.x + Event.current.delta.y;
+                        if (Events.ViewScale)
+                        {
+                            // Scale the view
+                            var prev = m_ViewScale;
+                            m_ViewScale *= 1.0f - delta * k_ViewScaleFactor;
+                            m_ViewScale = Mathf.Clamp(m_ViewScale, k_ViewScaleMin, k_ViewScaleMax);
+                            m_ViewPosition -= m_ViewPosition * (1.0f - m_ViewScale / prev);
+                        }
+                        else if (Events.ViewOpacity)
+                        {
+                            // Adjust the view opacity
+                            m_ViewOpacity -= delta * k_ViewOpacityFactor;
+                            m_ViewOpacity = Mathf.Clamp(m_ViewOpacity, k_ViewOpacityMin, k_ViewOpacityMax);
+                        }
+                        else if (Events.BrushSize)
+                        {
+                            // Adjust the brush size
+                            m_TexturePainter.BrushSize *= 1.0f - delta * k_BrushSizeFactor;
+                            m_TexturePainter.BrushSize = Mathf.Clamp(m_TexturePainter.BrushSize, k_BrushSizeMin, k_BrushSizeMax);
+                        }
+                        else if (Events.BrushHardness)
+                        {
+                            // Adjust the brush hardness
+                            m_TexturePainter.BrushHardness -= delta * k_BrushHardnessFactor;
+                            m_TexturePainter.BrushHardness = Mathf.Clamp(m_TexturePainter.BrushHardness, k_BrushHardnessMin, k_BrushHardnessMax);
+                        }
+                        else if (Events.BrushStrength)
+                        {
+                            // Adjust the brush strength
+                            m_TexturePainter.BrushStrength -= delta * k_BrushStrengthFactor;
+                            m_TexturePainter.BrushStrength = Mathf.Clamp(m_TexturePainter.BrushStrength, k_BrushStrengthMin, k_BrushStrengthMax);
+                        }
+                        else if (Events.BrushDensity)
+                        {
+                            // Adjust the brush density
+                            m_TexturePainter.BrushDensity *= 1.0f - delta * k_BrushDensityFactor;
+                            m_TexturePainter.BrushDensity = Mathf.Clamp(m_TexturePainter.BrushDensity, k_BrushDensityMin, k_BrushDensityMax);
+                        }
+                        else
+                        {
+                            // Scale the view around the mouse position
+                            var prev = m_ViewScale;
+                            m_ViewScale *= 1.0f - delta * k_ViewScaleFactor;
+                            m_ViewScale = Mathf.Clamp(m_ViewScale, k_ViewScaleMin, k_ViewScaleMax);
+                            var pos = Event.current.mousePosition - rect.center + m_ViewPosition;
+                            m_ViewPosition -= pos * (1.0f - m_ViewScale / prev);
+                        }
+                        Repaint();
+                        break;
                     }
-                    else if (Events.ViewOpacity)
-                    {
-                        // Adjust the view opacity
-                        m_ViewOpacity -= delta * k_ViewOpacityFactor;
-                        m_ViewOpacity = Mathf.Clamp(m_ViewOpacity, k_ViewOpacityMin, k_ViewOpacityMax);
-                    }
-                    else if (Events.BrushSize)
-                    {
-                        // Adjust the brush size
-                        m_TexturePainter.BrushSize *= 1.0f - delta * k_BrushSizeFactor;
-                        m_TexturePainter.BrushSize = Mathf.Clamp(m_TexturePainter.BrushSize, k_BrushSizeMin, k_BrushSizeMax);
-                    }
-                    else if (Events.BrushHardness)
-                    {
-                        // Adjust the brush hardness
-                        m_TexturePainter.BrushHardness -= delta * k_BrushHardnessFactor;
-                        m_TexturePainter.BrushHardness = Mathf.Clamp(m_TexturePainter.BrushHardness, k_BrushHardnessMin, k_BrushHardnessMax);
-                    }
-                    else if (Events.BrushStrength)
-                    {
-                        // Adjust the brush strength
-                        m_TexturePainter.BrushStrength -= delta * k_BrushStrengthFactor;
-                        m_TexturePainter.BrushStrength = Mathf.Clamp(m_TexturePainter.BrushStrength, k_BrushStrengthMin, k_BrushStrengthMax);
-                    }
-                    else if (Events.BrushDensity)
-                    {
-                        // Adjust the brush density
-                        m_TexturePainter.BrushDensity *= 1.0f - delta * k_BrushDensityFactor;
-                        m_TexturePainter.BrushDensity = Mathf.Clamp(m_TexturePainter.BrushDensity, k_BrushDensityMin, k_BrushDensityMax);
-                    }
-                    else
-                    {
-                        // Scale the view around the mouse position
-                        var prev = m_ViewScale;
-                        m_ViewScale *= 1.0f - delta * k_ViewScaleFactor;
-                        m_ViewScale = Mathf.Clamp(m_ViewScale, k_ViewScaleMin, k_ViewScaleMax);
-                        var pos = Event.current.mousePosition - rect.center + m_ViewPosition;
-                        m_ViewPosition -= pos * (1.0f - m_ViewScale / prev);
-                    }
-                    Repaint();
-                    break;
-                }
                 case EventType.ValidateCommand:
-                {
-                    Repaint();
-                    break;
-                }
+                    {
+                        Repaint();
+                        break;
+                    }
             }
 
             // Ensure non-negative position to avoid scrollbars flickering
             m_ViewPosition = Vector2.Max(m_ViewPosition, Vector2.zero);
+        }
+
+        private void GetUvTriangles(out Vector2[]? points, out int[]? indices)
+        {
+            if (m_TexturePainter.BrushMode == BrushMode.Triangle &&
+                m_UvMapDrawer.TryGetTriangles(out var uvPoints, out var triangleIndices))
+            {
+                points = uvPoints;
+                indices = triangleIndices;
+                return;
+            }
+
+            points = null;
+            indices = null;
         }
 
         public override void SaveChanges()

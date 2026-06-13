@@ -35,6 +35,15 @@ msgstr "View Opacity (Shift)"
 msgid "brush-size"
 msgstr "Brush Size (Ctrl)"
 
+msgid "brush-mode"
+msgstr "Brush Mode"
+
+msgid "brush-mode-circle"
+msgstr "Circle"
+
+msgid "brush-mode-triangle"
+msgstr "Face"
+
 msgid "brush-hardness"
 msgstr "Brush Hardness (Ctrl + Alt)"
 

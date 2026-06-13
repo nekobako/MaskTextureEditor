@@ -1,13 +1,123 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace net.nekobako.MaskTextureEditor.Editor
 {
+    internal enum BrushMode
+    {
+        Circle,
+        Triangle,
+    }
+
     internal class TexturePainter : ScriptableObject
     {
+        private sealed class TriangleLookup
+        {
+            private const int k_GridSize = 32;
+
+            public readonly Vector2[] Points;
+            public readonly int[] Indices;
+            public readonly Vector2[] PixelPoints;
+            public readonly List<int>[] Grid;
+            public readonly int[] VisitStamps;
+            public readonly Vector2 TextureSize;
+
+            private int m_VisitStamp = 0;
+
+            public TriangleLookup(Vector2[] points, int[] indices, Vector2 textureSize)
+            {
+                Points = points;
+                Indices = indices;
+                TextureSize = textureSize;
+                PixelPoints = new Vector2[points.Length];
+                Grid = new List<int>[k_GridSize * k_GridSize];
+                VisitStamps = new int[indices.Length / 3];
+
+                for (var i = 0; i < points.Length; i++)
+                {
+                    PixelPoints[i] = new(points[i].x * textureSize.x, (1.0f - points[i].y) * textureSize.y);
+                }
+
+                for (var offset = 0; offset + 2 < indices.Length; offset += 3)
+                {
+                    var indexA = indices[offset];
+                    var indexB = indices[offset + 1];
+                    var indexC = indices[offset + 2];
+                    if (indexA < 0 || indexA >= points.Length ||
+                        indexB < 0 || indexB >= points.Length ||
+                        indexC < 0 || indexC >= points.Length)
+                    {
+                        continue;
+                    }
+
+                    var min = Vector2.Min(points[indexA], Vector2.Min(points[indexB], points[indexC]));
+                    var max = Vector2.Max(points[indexA], Vector2.Max(points[indexB], points[indexC]));
+                    var minX = ToGrid(min.x);
+                    var minY = ToGrid(min.y);
+                    var maxX = ToGrid(max.x);
+                    var maxY = ToGrid(max.y);
+                    for (var y = minY; y <= maxY; y++)
+                    {
+                        for (var x = minX; x <= maxX; x++)
+                        {
+                            var cell = y * k_GridSize + x;
+                            Grid[cell] ??= new();
+                            Grid[cell].Add(offset);
+                        }
+                    }
+                }
+            }
+
+            public void CollectCandidates(Vector2 center, float radius, Vector2 textureSize, List<int> candidates)
+            {
+                candidates.Clear();
+
+                if (++m_VisitStamp == int.MaxValue)
+                {
+                    System.Array.Clear(VisitStamps, 0, VisitStamps.Length);
+                    m_VisitStamp = 1;
+                }
+
+                var minX = ToGrid((center.x - radius) / textureSize.x);
+                var minY = ToGrid(1.0f - (center.y + radius) / textureSize.y);
+                var maxX = ToGrid((center.x + radius) / textureSize.x);
+                var maxY = ToGrid(1.0f - (center.y - radius) / textureSize.y);
+                for (var y = minY; y <= maxY; y++)
+                {
+                    for (var x = minX; x <= maxX; x++)
+                    {
+                        var entries = Grid[y * k_GridSize + x];
+                        if (entries == null)
+                        {
+                            continue;
+                        }
+
+                        foreach (var offset in entries)
+                        {
+                            var triangle = offset / 3;
+                            if (VisitStamps[triangle] == m_VisitStamp)
+                            {
+                                continue;
+                            }
+
+                            VisitStamps[triangle] = m_VisitStamp;
+                            candidates.Add(offset);
+                        }
+                    }
+                }
+            }
+
+            private static int ToGrid(float value)
+            {
+                return Mathf.Clamp(Mathf.FloorToInt(value * k_GridSize), 0, k_GridSize - 1);
+            }
+        }
+
         private const string k_FillShaderName = "Hidden/MaskTextureEditor/Fill";
         private const string k_PaintShaderName = "Hidden/MaskTextureEditor/Paint";
+        private const string k_TrianglePaintShaderName = "Hidden/MaskTextureEditor/TrianglePaint";
         private const string k_InverseShaderName = "Hidden/MaskTextureEditor/Inverse";
 
         private static readonly int s_ColorMaskPropertyId = Shader.PropertyToID("_ColorMask");
@@ -17,6 +127,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private static readonly int s_BrushStrengthPropertyId = Shader.PropertyToID("_BrushStrength");
         private static readonly int s_BrushColorPropertyId = Shader.PropertyToID("_BrushColor");
         private static readonly int s_BrushPositionPropertyId = Shader.PropertyToID("_BrushPosition");
+        private static readonly int s_TriangleMaskPropertyId = Shader.PropertyToID("_TriangleMask");
 
         [SerializeField]
         private RenderTexture m_Target = null!; // Initialize in Init
@@ -25,13 +136,22 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private RenderTexture m_Buffer = null!; // Initialize in Init
 
         [SerializeField]
+        private RenderTexture m_TriangleMask = null!; // Initialize in Init
+
+        [SerializeField]
         private Material m_FillMaterial = null!; // Initialize in Init
 
         [SerializeField]
         private Material m_PaintMaterial = null!; // Initialize in Init
 
         [SerializeField]
+        private Material m_TrianglePaintMaterial = null!; // Initialize in Init
+
+        [SerializeField]
         private Material m_InverseMaterial = null!; // Initialize in Init
+
+        [SerializeField]
+        private BrushMode m_BrushMode = BrushMode.Circle;
 
         [SerializeField]
         private ColorWriteMask m_ColorMask = ColorWriteMask.All;
@@ -52,9 +172,20 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private Color m_BrushColor = Color.black;
 
         private Vector2 m_BrushPosition = Vector2.zero;
+        private readonly HashSet<int> m_PaintedTriangles = new();
+        private readonly List<int> m_TriangleCandidates = new();
+        private readonly List<int> m_HitTriangles = new();
+        private TriangleLookup? m_TriangleLookup = null;
+        private bool m_StrokeModified = false;
 
         public RenderTexture Texture => m_Target;
         public Vector2 TextureSize => new(m_Target.width, m_Target.height);
+
+        public BrushMode BrushMode
+        {
+            get => m_BrushMode;
+            set => m_BrushMode = value;
+        }
 
         public ColorWriteMask ColorMask
         {
@@ -121,11 +252,21 @@ namespace net.nekobako.MaskTextureEditor.Editor
             {
                 hideFlags = HideFlags.HideAndDontSave,
             };
+            m_TriangleMask = new(size.x, size.y, 0, RenderTextureFormat.R8)
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+            };
             m_FillMaterial = new(Shader.Find(k_FillShaderName))
             {
                 hideFlags = HideFlags.HideAndDontSave,
             };
             m_PaintMaterial = new(Shader.Find(k_PaintShaderName))
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            m_TrianglePaintMaterial = new(Shader.Find(k_TrianglePaintShaderName))
             {
                 hideFlags = HideFlags.HideAndDontSave,
             };
@@ -156,8 +297,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 Handles.color = new(GUI.color.r * m_BrushColor.r, GUI.color.g * m_BrushColor.g, GUI.color.b * m_BrushColor.b, GUI.color.a * m_BrushColor.a);
                 Handles.DrawWireDisc(Vector3.zero, Vector3.forward, 0.5f);
 
-                Handles.color = new(GUI.color.r * m_BrushColor.r, GUI.color.g * m_BrushColor.g, GUI.color.b * m_BrushColor.b, GUI.color.a * m_BrushColor.a * m_BrushStrength);
-                Handles.DrawSolidDisc(Vector3.zero, Vector3.forward, 0.5f * m_BrushHardness);
+                if (m_BrushMode == BrushMode.Circle)
+                {
+                    Handles.color = new(GUI.color.r * m_BrushColor.r, GUI.color.g * m_BrushColor.g, GUI.color.b * m_BrushColor.b, GUI.color.a * m_BrushColor.a * m_BrushStrength);
+                    Handles.DrawSolidDisc(Vector3.zero, Vector3.forward, 0.5f * m_BrushHardness);
+                }
 
                 Handles.matrix = Matrix4x4.identity;
             }
@@ -174,6 +318,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
             m_Buffer.width = texture.width;
             m_Buffer.height = texture.height;
             m_Buffer.Create();
+
+            m_TriangleMask.Release();
+            m_TriangleMask.width = texture.width;
+            m_TriangleMask.height = texture.height;
+            m_TriangleMask.Create();
+            m_TriangleLookup = null;
 
             Graphics.Blit(texture, m_Target);
             RenderTexture.active = null;
@@ -200,36 +350,203 @@ namespace net.nekobako.MaskTextureEditor.Editor
             RenderTexture.active = null;
         }
 
-        public void Paint(Vector2 position, bool stroke)
+        public void BeginStroke(Vector2 position, Vector2[]? points, int[]? indices)
         {
+            m_BrushPosition = position;
+            m_PaintedTriangles.Clear();
+            m_StrokeModified = false;
+
+            if (m_BrushMode == BrushMode.Triangle)
+            {
+                m_HitTriangles.Clear();
+                CollectHitTriangles(position, points, indices, m_HitTriangles);
+                PaintTriangles(points, indices, m_HitTriangles);
+            }
+            else
+            {
+                PaintCircle(position);
+            }
+        }
+
+        public void ContinueStroke(Vector2 position, Vector2[]? points, int[]? indices)
+        {
+            var delta = position - m_BrushPosition;
+            var spacing = m_BrushSize / m_BrushDensity;
+            var spacingSquared = spacing * spacing;
+            m_HitTriangles.Clear();
+            while (delta.sqrMagnitude >= spacingSquared)
+            {
+                m_BrushPosition += delta * (spacing / Mathf.Sqrt(delta.sqrMagnitude));
+                if (m_BrushMode == BrushMode.Triangle)
+                {
+                    CollectHitTriangles(m_BrushPosition, points, indices, m_HitTriangles);
+                }
+                else
+                {
+                    PaintCircle(m_BrushPosition);
+                }
+                delta = position - m_BrushPosition;
+            }
+
+            if (m_BrushMode == BrushMode.Triangle)
+            {
+                PaintTriangles(points, indices, m_HitTriangles);
+            }
+        }
+
+        public bool EndStroke()
+        {
+            return m_StrokeModified;
+        }
+
+        private void PaintCircle(Vector2 position)
+        {
+            if (m_BrushStrength <= 0.0f)
+            {
+                return;
+            }
+
             m_PaintMaterial.SetInt(s_ColorMaskPropertyId, (int)m_ColorMask);
             m_PaintMaterial.SetFloat(s_BrushSizePropertyId, m_BrushSize);
             m_PaintMaterial.SetFloat(s_BrushHardnessPropertyId, m_BrushHardness);
             m_PaintMaterial.SetFloat(s_BrushStrengthPropertyId, m_BrushStrength);
             m_PaintMaterial.SetColor(s_BrushColorPropertyId, m_BrushColor);
+            m_PaintMaterial.SetVector(s_BrushPositionPropertyId, new(position.x, TextureSize.y - position.y));
 
-            if (stroke)
-            {
-                var delta = position - m_BrushPosition;
-                for (var i = 0; i < Mathf.FloorToInt(delta.magnitude / (m_BrushSize / m_BrushDensity)); i++)
-                {
-                    m_BrushPosition += delta.normalized * (m_BrushSize / m_BrushDensity);
-                    m_PaintMaterial.SetVector(s_BrushPositionPropertyId, new(m_BrushPosition.x, TextureSize.y - m_BrushPosition.y));
-
-                    Graphics.Blit(m_Target, m_Buffer);
-                    Graphics.Blit(m_Buffer, m_Target, m_PaintMaterial);
-                }
-            }
-            else
-            {
-                m_BrushPosition = position;
-                m_PaintMaterial.SetVector(s_BrushPositionPropertyId, new(m_BrushPosition.x, TextureSize.y - m_BrushPosition.y));
-
-                Graphics.Blit(m_Target, m_Buffer);
-                Graphics.Blit(m_Buffer, m_Target, m_PaintMaterial);
-            }
-
+            Graphics.Blit(m_Target, m_Buffer);
+            Graphics.Blit(m_Buffer, m_Target, m_PaintMaterial);
             RenderTexture.active = null;
+            m_StrokeModified = true;
+        }
+
+        private void CollectHitTriangles(Vector2 position, Vector2[]? points, int[]? indices, List<int> hitTriangles)
+        {
+            if (m_BrushStrength <= 0.0f || points == null || indices == null)
+            {
+                return;
+            }
+
+            if (m_TriangleLookup == null ||
+                m_TriangleLookup.Points != points ||
+                m_TriangleLookup.Indices != indices ||
+                m_TriangleLookup.TextureSize != TextureSize)
+            {
+                m_TriangleLookup = new(points, indices, TextureSize);
+            }
+
+            var radius = m_BrushSize * 0.5f;
+            m_TriangleLookup.CollectCandidates(position, radius, TextureSize, m_TriangleCandidates);
+            foreach (var offset in m_TriangleCandidates)
+            {
+                var triangle = offset / 3;
+                if (m_PaintedTriangles.Contains(triangle))
+                {
+                    continue;
+                }
+
+                var a = m_TriangleLookup.PixelPoints[indices[offset]];
+                var b = m_TriangleLookup.PixelPoints[indices[offset + 1]];
+                var c = m_TriangleLookup.PixelPoints[indices[offset + 2]];
+                if (!CircleIntersectsTriangle(position, radius, a, b, c))
+                {
+                    continue;
+                }
+
+                m_PaintedTriangles.Add(triangle);
+                hitTriangles.Add(offset);
+            }
+        }
+
+        private void PaintTriangles(Vector2[]? points, int[]? indices, List<int> hitTriangles)
+        {
+            if (points == null || indices == null || hitTriangles.Count == 0)
+            {
+                return;
+            }
+
+            m_TrianglePaintMaterial.SetInt(s_ColorMaskPropertyId, (int)m_ColorMask);
+            m_TrianglePaintMaterial.SetColor(s_BrushColorPropertyId, m_BrushColor);
+            m_TrianglePaintMaterial.SetFloat(s_BrushStrengthPropertyId, m_BrushStrength);
+            m_TrianglePaintMaterial.SetTexture(s_TriangleMaskPropertyId, m_TriangleMask);
+
+            var previous = RenderTexture.active;
+            RenderTexture.active = m_TriangleMask;
+            GL.Clear(false, true, Color.clear);
+            GL.PushMatrix();
+            GL.LoadOrtho();
+            m_TrianglePaintMaterial.SetPass(0);
+            GL.Begin(GL.TRIANGLES);
+            foreach (var offset in hitTriangles)
+            {
+                GL.Vertex3(points[indices[offset]].x, points[indices[offset]].y, 0.0f);
+                GL.Vertex3(points[indices[offset + 1]].x, points[indices[offset + 1]].y, 0.0f);
+                GL.Vertex3(points[indices[offset + 2]].x, points[indices[offset + 2]].y, 0.0f);
+            }
+            GL.End();
+            GL.PopMatrix();
+
+            Graphics.Blit(m_Target, m_Buffer);
+            Graphics.Blit(m_Buffer, m_Target, m_TrianglePaintMaterial, 1);
+            RenderTexture.active = previous;
+            m_StrokeModified = true;
+        }
+
+        private static bool CircleIntersectsTriangle(Vector2 center, float radius, Vector2 a, Vector2 b, Vector2 c)
+        {
+            var min = Vector2.Min(a, Vector2.Min(b, c));
+            var max = Vector2.Max(a, Vector2.Max(b, c));
+            if (center.x + radius < min.x || center.x - radius > max.x ||
+                center.y + radius < min.y || center.y - radius > max.y)
+            {
+                return false;
+            }
+
+            if (Mathf.Abs(Cross(b - a, c - a)) < Mathf.Epsilon)
+            {
+                return false;
+            }
+
+            if (PointInTriangle(center, a, b, c))
+            {
+                return true;
+            }
+
+            var radiusSquared = radius * radius;
+            return
+                (a - center).sqrMagnitude <= radiusSquared ||
+                (b - center).sqrMagnitude <= radiusSquared ||
+                (c - center).sqrMagnitude <= radiusSquared ||
+                DistanceToSegmentSquared(center, a, b) <= radiusSquared ||
+                DistanceToSegmentSquared(center, b, c) <= radiusSquared ||
+                DistanceToSegmentSquared(center, c, a) <= radiusSquared;
+        }
+
+        private static bool PointInTriangle(Vector2 point, Vector2 a, Vector2 b, Vector2 c)
+        {
+            var ab = Cross(b - a, point - a);
+            var bc = Cross(c - b, point - b);
+            var ca = Cross(a - c, point - c);
+            return
+                (ab >= 0.0f && bc >= 0.0f && ca >= 0.0f) ||
+                (ab <= 0.0f && bc <= 0.0f && ca <= 0.0f);
+        }
+
+        private static float DistanceToSegmentSquared(Vector2 point, Vector2 a, Vector2 b)
+        {
+            var segment = b - a;
+            var lengthSquared = segment.sqrMagnitude;
+            if (lengthSquared <= Mathf.Epsilon)
+            {
+                return (point - a).sqrMagnitude;
+            }
+
+            var t = Mathf.Clamp01(Vector2.Dot(point - a, segment) / lengthSquared);
+            return (point - (a + segment * t)).sqrMagnitude;
+        }
+
+        private static float Cross(Vector2 a, Vector2 b)
+        {
+            return a.x * b.y - a.y * b.x;
         }
 
         public void Inverse()
@@ -253,6 +570,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 DestroyImmediate(m_Buffer);
                 m_Buffer = null!; // Reset
             }
+            if (m_TriangleMask != null)
+            {
+                DestroyImmediate(m_TriangleMask);
+                m_TriangleMask = null!; // Reset
+            }
             if (m_FillMaterial != null)
             {
                 DestroyImmediate(m_FillMaterial);
@@ -262,6 +584,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
             {
                 DestroyImmediate(m_PaintMaterial);
                 m_PaintMaterial = null!; // Reset
+            }
+            if (m_TrianglePaintMaterial != null)
+            {
+                DestroyImmediate(m_TrianglePaintMaterial);
+                m_TrianglePaintMaterial = null!; // Reset
             }
             if (m_InverseMaterial != null)
             {

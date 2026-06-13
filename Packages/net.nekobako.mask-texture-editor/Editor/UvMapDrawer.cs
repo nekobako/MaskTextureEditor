@@ -44,6 +44,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private Vector2[]? m_Points = null;
         private Vector3[]? m_Buffer = null;
         private int[]? m_LineIndices = null;
+        private int[]? m_TriangleIndices = null;
 
         private void Awake()
         {
@@ -67,7 +68,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 m_IsDirty = false;
                 m_Mesh = mesh;
                 m_MeshDirtyCount = EditorUtility.GetDirtyCount(m_Mesh);
-                (m_Points, m_LineIndices) = CollectPointsAndLineIndices();
+                (m_Points, m_LineIndices, m_TriangleIndices) = CollectMeshData();
                 m_Buffer = m_Points != null ? new Vector3[m_Points.Length] : null;
             }
 
@@ -97,6 +98,20 @@ namespace net.nekobako.MaskTextureEditor.Editor
             }
         }
 
+        public bool TryGetTriangles(out Vector2[] points, out int[] indices)
+        {
+            if (m_Points != null && m_TriangleIndices != null)
+            {
+                points = m_Points;
+                indices = m_TriangleIndices;
+                return true;
+            }
+
+            points = null!;
+            indices = null!;
+            return false;
+        }
+
         private (Mesh?, Material?) CollectMeshAndMaterial()
         {
             if (m_Renderer == null)
@@ -109,13 +124,17 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 case MeshRenderer meshRenderer:
                 {
                     var mesh = meshRenderer.TryGetComponent<MeshFilter>(out var filter) ? filter.sharedMesh : null;
-                    var material = m_Slot < meshRenderer.sharedMaterials.Length ? meshRenderer.sharedMaterials[m_Slot] : null;
+                    var material = m_Slot >= 0 && m_Slot < meshRenderer.sharedMaterials.Length
+                        ? meshRenderer.sharedMaterials[m_Slot]
+                        : null;
                     return (mesh, material);
                 }
                 case SkinnedMeshRenderer skinnedMeshRenderer:
                 {
                     var mesh = skinnedMeshRenderer.sharedMesh;
-                    var material = m_Slot < skinnedMeshRenderer.sharedMaterials.Length ? skinnedMeshRenderer.sharedMaterials[m_Slot] : null;
+                    var material = m_Slot >= 0 && m_Slot < skinnedMeshRenderer.sharedMaterials.Length
+                        ? skinnedMeshRenderer.sharedMaterials[m_Slot]
+                        : null;
                     return (mesh, material);
                 }
                 default:
@@ -125,14 +144,21 @@ namespace net.nekobako.MaskTextureEditor.Editor
             }
         }
 
-        private (Vector2[]?, int[]?) CollectPointsAndLineIndices()
+        private (Vector2[]?, int[]?, int[]?) CollectMeshData()
         {
             if (m_Mesh == null)
             {
-                return (null, null);
+                return (null, null, null);
             }
 
-            var topology = m_Mesh.GetTopology(Mathf.Min(m_Slot, m_Mesh.subMeshCount - 1)) switch
+            if (m_Mesh.subMeshCount == 0)
+            {
+                return (null, null, null);
+            }
+
+            var subMesh = Mathf.Clamp(m_Slot, 0, m_Mesh.subMeshCount - 1);
+            var meshTopology = m_Mesh.GetTopology(subMesh);
+            var topology = meshTopology switch
             {
                 MeshTopology.Lines => 2,
                 MeshTopology.Triangles => 3,
@@ -141,11 +167,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
             };
             if (topology == 0)
             {
-                return (null, null);
+                return (null, null, null);
             }
 
             var lines = new HashSet<(int, int)>();
-            var indices = m_Mesh.GetIndices(Mathf.Min(m_Slot, m_Mesh.subMeshCount - 1));
+            var indices = m_Mesh.GetIndices(subMesh);
             for (var i = 0; i < indices.Length; i++)
             {
                 var indexA = indices[i / topology * topology + (i + 0) % topology];
@@ -160,7 +186,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 lineIndices.Add(b);
             }
 
-            return (m_Mesh.uv, lineIndices.ToArray());
+            return (
+                m_Mesh.uv,
+                lineIndices.ToArray(),
+                meshTopology == MeshTopology.Triangles ? indices : null);
         }
     }
 }
