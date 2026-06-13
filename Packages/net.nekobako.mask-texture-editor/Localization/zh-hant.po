@@ -32,6 +32,18 @@ msgstr "視圖縮放"
 msgid "view-opacity"
 msgstr "視圖透明度 (Shift)"
 
+msgid "preview-layers"
+msgstr "預覽圖層"
+
+msgid "uv-preview"
+msgstr "UV 線框"
+
+msgid "normal-overlay"
+msgstr "法線"
+
+msgid "normal-overlay-opacity"
+msgstr "法線不透明度"
+
 msgid "brush-size"
 msgstr "筆刷大小 (Ctrl)"
 

@@ -32,6 +32,18 @@ msgstr "View Scale"
 msgid "view-opacity"
 msgstr "View Opacity (Shift)"
 
+msgid "preview-layers"
+msgstr "Preview Layers"
+
+msgid "uv-preview"
+msgstr "UV Wireframe"
+
+msgid "normal-overlay"
+msgstr "Normals"
+
+msgid "normal-overlay-opacity"
+msgstr "Normal Opacity"
+
 msgid "brush-size"
 msgstr "Brush Size (Ctrl)"
 

@@ -97,6 +97,15 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private float m_ViewOpacity = 0.5f;
 
         [SerializeField]
+        private bool m_ShowUvPreview = true;
+
+        [SerializeField]
+        private bool m_ShowNormalOverlay = true;
+
+        [SerializeField]
+        private float m_NormalOverlayOpacity = 0.35f;
+
+        [SerializeField]
         private bool m_RequestResetView = true;
 
         [SerializeField]
@@ -361,6 +370,20 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 CL4EE.Tr("view-opacity"),
                 m_ViewOpacity, k_ViewOpacityMin, k_ViewOpacityMax);
 
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.PrefixLabel(CL4EE.Tr("preview-layers"));
+                m_ShowUvPreview = GUILayout.Toggle(m_ShowUvPreview, CL4EE.Tr("uv-preview"), Styles.Toggle);
+                m_ShowNormalOverlay = GUILayout.Toggle(m_ShowNormalOverlay, CL4EE.Tr("normal-overlay"), Styles.Toggle);
+            }
+
+            using (new EditorGUI.DisabledScope(!m_ShowNormalOverlay))
+            {
+                m_NormalOverlayOpacity = EditorGUILayout.Slider(
+                    CL4EE.Tr("normal-overlay-opacity"),
+                    m_NormalOverlayOpacity, 0.0f, 1.0f);
+            }
+
             EditorGUILayout.Space();
 
             using (new EditorGUILayout.HorizontalScope())
@@ -448,7 +471,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private void DrawContents(Rect rect, bool brush)
         {
             GUI.color = new(1.0f, 1.0f, 1.0f, 1.0f);
-            m_UvMapDrawer.Draw(rect);
+            m_UvMapDrawer.Draw(
+                rect,
+                Vector2Int.RoundToInt(m_TexturePainter.TextureSize),
+                m_ShowUvPreview,
+                m_ShowNormalOverlay,
+                m_NormalOverlayOpacity);
 
             GUI.color = new(1.0f, 1.0f, 1.0f, m_ViewOpacity);
             m_TexturePainter.Draw(rect, brush);

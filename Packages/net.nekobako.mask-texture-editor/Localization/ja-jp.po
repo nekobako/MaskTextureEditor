@@ -32,6 +32,18 @@ msgstr "表示倍率"
 msgid "view-opacity"
 msgstr "表示透明度 (Shift)"
 
+msgid "preview-layers"
+msgstr "プレビューレイヤー"
+
+msgid "uv-preview"
+msgstr "UV ワイヤーフレーム"
+
+msgid "normal-overlay"
+msgstr "法線"
+
+msgid "normal-overlay-opacity"
+msgstr "法線の不透明度"
+
 msgid "brush-size"
 msgstr "ブラシサイズ (Ctrl)"
 
