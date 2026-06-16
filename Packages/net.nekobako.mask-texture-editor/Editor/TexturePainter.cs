@@ -11,6 +11,13 @@ namespace net.nekobako.MaskTextureEditor.Editor
         Triangle,
     }
 
+    internal enum GradientShape
+    {
+        Line,
+        Band,
+        Radial,
+    }
+
     internal class TexturePainter : ScriptableObject
     {
         private sealed class TriangleLookup
@@ -118,6 +125,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const string k_FillShaderName = "Hidden/MaskTextureEditor/Fill";
         private const string k_PaintShaderName = "Hidden/MaskTextureEditor/Paint";
         private const string k_TrianglePaintShaderName = "Hidden/MaskTextureEditor/TrianglePaint";
+        private const string k_GradientShaderName = "Hidden/MaskTextureEditor/Gradient";
         private const string k_InverseShaderName = "Hidden/MaskTextureEditor/Inverse";
 
         private static readonly int s_ColorMaskPropertyId = Shader.PropertyToID("_ColorMask");
@@ -128,6 +136,17 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private static readonly int s_BrushColorPropertyId = Shader.PropertyToID("_BrushColor");
         private static readonly int s_BrushPositionPropertyId = Shader.PropertyToID("_BrushPosition");
         private static readonly int s_TriangleMaskPropertyId = Shader.PropertyToID("_TriangleMask");
+        private static readonly int s_SelectionMaskPropertyId = Shader.PropertyToID("_SelectionMask");
+        private static readonly int s_UseSelectionMaskPropertyId = Shader.PropertyToID("_UseSelectionMask");
+        private static readonly int s_StartPointPropertyId = Shader.PropertyToID("_StartPoint");
+        private static readonly int s_EndPointPropertyId = Shader.PropertyToID("_EndPoint");
+        private static readonly int s_StartValuePropertyId = Shader.PropertyToID("_StartValue");
+        private static readonly int s_EndValuePropertyId = Shader.PropertyToID("_EndValue");
+        private static readonly int s_CurveExponentPropertyId = Shader.PropertyToID("_CurveExponent");
+        private static readonly int s_TextureSizePropertyId = Shader.PropertyToID("_TextureSize");
+        private static readonly int s_GradientShapePropertyId = Shader.PropertyToID("_GradientShape");
+        private static readonly int s_GradientWidthPropertyId = Shader.PropertyToID("_GradientWidth");
+        private static readonly int s_GradientFeatherPropertyId = Shader.PropertyToID("_GradientFeather");
 
         [SerializeField]
         private RenderTexture m_Target = null!; // Initialize in Init
@@ -139,6 +158,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private RenderTexture m_TriangleMask = null!; // Initialize in Init
 
         [SerializeField]
+        private RenderTexture m_GradientSource = null!; // Initialize in Init
+
+        [SerializeField]
+        private RenderTexture m_GradientPreview = null!; // Initialize in Init
+
+        [SerializeField]
         private Material m_FillMaterial = null!; // Initialize in Init
 
         [SerializeField]
@@ -146,6 +171,9 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         [SerializeField]
         private Material m_TrianglePaintMaterial = null!; // Initialize in Init
+
+        [SerializeField]
+        private Material m_GradientMaterial = null!; // Initialize in Init
 
         [SerializeField]
         private Material m_InverseMaterial = null!; // Initialize in Init
@@ -177,9 +205,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private readonly List<int> m_HitTriangles = new();
         private TriangleLookup? m_TriangleLookup = null;
         private bool m_StrokeModified = false;
+        private bool m_IsGradientPreview = false;
 
         public RenderTexture Texture => m_Target;
         public Vector2 TextureSize => new(m_Target.width, m_Target.height);
+        public bool IsGradientPreview => m_IsGradientPreview;
 
         public BrushMode BrushMode
         {
@@ -258,6 +288,14 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp,
             };
+            m_GradientSource = new(size.x, size.y, 0)
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            m_GradientPreview = new(size.x, size.y, 0)
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+            };
             m_FillMaterial = new(Shader.Find(k_FillShaderName))
             {
                 hideFlags = HideFlags.HideAndDontSave,
@@ -267,6 +305,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 hideFlags = HideFlags.HideAndDontSave,
             };
             m_TrianglePaintMaterial = new(Shader.Find(k_TrianglePaintShaderName))
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            m_GradientMaterial = new(Shader.Find(k_GradientShaderName))
             {
                 hideFlags = HideFlags.HideAndDontSave,
             };
@@ -284,7 +326,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
             color.g = (m_ColorMask & ColorWriteMask.Green) != 0 ? color.g : 0.0f;
             color.b = (m_ColorMask & ColorWriteMask.Blue) != 0 ? color.b : 0.0f;
             GUI.color = color;
-            GUI.DrawTexture(rect, m_Target);
+            GUI.DrawTexture(rect, m_IsGradientPreview ? m_GradientPreview : m_Target);
 
             // Draw the brush
             if (brush)
@@ -325,6 +367,10 @@ namespace net.nekobako.MaskTextureEditor.Editor
             m_TriangleMask.Create();
             m_TriangleLookup = null;
 
+            ResizeRenderTexture(m_GradientSource, texture.width, texture.height);
+            ResizeRenderTexture(m_GradientPreview, texture.width, texture.height);
+            m_IsGradientPreview = false;
+
             Graphics.Blit(texture, m_Target);
             RenderTexture.active = null;
         }
@@ -340,17 +386,18 @@ namespace net.nekobako.MaskTextureEditor.Editor
             RenderTexture.active = null;
         }
 
-        public void Fill(Color color)
+        public void Fill(Color color, Texture? selectionMask = null)
         {
             m_FillMaterial.SetInt(s_ColorMaskPropertyId, (int)m_ColorMask);
             m_FillMaterial.SetColor(s_ColorPropertyId, color);
+            SetSelectionMask(m_FillMaterial, selectionMask);
 
             Graphics.Blit(m_Target, m_Buffer);
             Graphics.Blit(m_Buffer, m_Target, m_FillMaterial);
             RenderTexture.active = null;
         }
 
-        public void BeginStroke(Vector2 position, Vector2[]? points, int[]? indices)
+        public void BeginStroke(Vector2 position, Vector2[]? points, int[]? indices, Texture? selectionMask)
         {
             m_BrushPosition = position;
             m_PaintedTriangles.Clear();
@@ -360,15 +407,15 @@ namespace net.nekobako.MaskTextureEditor.Editor
             {
                 m_HitTriangles.Clear();
                 CollectHitTriangles(position, points, indices, m_HitTriangles);
-                PaintTriangles(points, indices, m_HitTriangles);
+                PaintTriangles(points, indices, m_HitTriangles, selectionMask);
             }
             else
             {
-                PaintCircle(position);
+                PaintCircle(position, selectionMask);
             }
         }
 
-        public void ContinueStroke(Vector2 position, Vector2[]? points, int[]? indices)
+        public void ContinueStroke(Vector2 position, Vector2[]? points, int[]? indices, Texture? selectionMask)
         {
             var delta = position - m_BrushPosition;
             var spacing = m_BrushSize / m_BrushDensity;
@@ -383,14 +430,14 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 }
                 else
                 {
-                    PaintCircle(m_BrushPosition);
+                    PaintCircle(m_BrushPosition, selectionMask);
                 }
                 delta = position - m_BrushPosition;
             }
 
             if (m_BrushMode == BrushMode.Triangle)
             {
-                PaintTriangles(points, indices, m_HitTriangles);
+                PaintTriangles(points, indices, m_HitTriangles, selectionMask);
             }
         }
 
@@ -399,7 +446,72 @@ namespace net.nekobako.MaskTextureEditor.Editor
             return m_StrokeModified;
         }
 
-        private void PaintCircle(Vector2 position)
+        public void BeginGradient()
+        {
+            Graphics.Blit(m_Target, m_GradientSource);
+            Graphics.Blit(m_Target, m_GradientPreview);
+            RenderTexture.active = null;
+            m_IsGradientPreview = true;
+        }
+
+        public bool UpdateGradient(
+            Vector2 start,
+            Vector2 end,
+            float startValue,
+            float endValue,
+            float curveExponent,
+            GradientShape shape,
+            float width,
+            float feather,
+            Texture? selectionMask)
+        {
+            if (!m_IsGradientPreview)
+            {
+                return false;
+            }
+
+            if ((end - start).sqrMagnitude <= Mathf.Epsilon)
+            {
+                Graphics.Blit(m_GradientSource, m_GradientPreview);
+                RenderTexture.active = null;
+                return false;
+            }
+
+            m_GradientMaterial.SetInt(s_ColorMaskPropertyId, (int)m_ColorMask);
+            SetSelectionMask(m_GradientMaterial, selectionMask);
+            m_GradientMaterial.SetVector(s_StartPointPropertyId, start);
+            m_GradientMaterial.SetVector(s_EndPointPropertyId, end);
+            m_GradientMaterial.SetFloat(s_StartValuePropertyId, startValue);
+            m_GradientMaterial.SetFloat(s_EndValuePropertyId, endValue);
+            m_GradientMaterial.SetFloat(s_CurveExponentPropertyId, curveExponent);
+            m_GradientMaterial.SetVector(s_TextureSizePropertyId, new(TextureSize.x, TextureSize.y, 0.0f, 0.0f));
+            m_GradientMaterial.SetInt(s_GradientShapePropertyId, (int)shape);
+            m_GradientMaterial.SetFloat(s_GradientWidthPropertyId, width);
+            m_GradientMaterial.SetFloat(s_GradientFeatherPropertyId, feather);
+            Graphics.Blit(m_GradientSource, m_GradientPreview, m_GradientMaterial);
+            RenderTexture.active = null;
+            return true;
+        }
+
+        public bool CommitGradient()
+        {
+            if (!m_IsGradientPreview)
+            {
+                return false;
+            }
+
+            Graphics.Blit(m_GradientPreview, m_Target);
+            RenderTexture.active = null;
+            m_IsGradientPreview = false;
+            return true;
+        }
+
+        public void CancelGradient()
+        {
+            m_IsGradientPreview = false;
+        }
+
+        private void PaintCircle(Vector2 position, Texture? selectionMask)
         {
             if (m_BrushStrength <= 0.0f)
             {
@@ -412,6 +524,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
             m_PaintMaterial.SetFloat(s_BrushStrengthPropertyId, m_BrushStrength);
             m_PaintMaterial.SetColor(s_BrushColorPropertyId, m_BrushColor);
             m_PaintMaterial.SetVector(s_BrushPositionPropertyId, new(position.x, TextureSize.y - position.y));
+            SetSelectionMask(m_PaintMaterial, selectionMask);
 
             Graphics.Blit(m_Target, m_Buffer);
             Graphics.Blit(m_Buffer, m_Target, m_PaintMaterial);
@@ -457,7 +570,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
             }
         }
 
-        private void PaintTriangles(Vector2[]? points, int[]? indices, List<int> hitTriangles)
+        private void PaintTriangles(
+            Vector2[]? points,
+            int[]? indices,
+            List<int> hitTriangles,
+            Texture? selectionMask)
         {
             if (points == null || indices == null || hitTriangles.Count == 0)
             {
@@ -468,6 +585,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
             m_TrianglePaintMaterial.SetColor(s_BrushColorPropertyId, m_BrushColor);
             m_TrianglePaintMaterial.SetFloat(s_BrushStrengthPropertyId, m_BrushStrength);
             m_TrianglePaintMaterial.SetTexture(s_TriangleMaskPropertyId, m_TriangleMask);
+            SetSelectionMask(m_TrianglePaintMaterial, selectionMask);
 
             var previous = RenderTexture.active;
             RenderTexture.active = m_TriangleMask;
@@ -549,9 +667,24 @@ namespace net.nekobako.MaskTextureEditor.Editor
             return a.x * b.y - a.y * b.x;
         }
 
-        public void Inverse()
+        private static void ResizeRenderTexture(RenderTexture texture, int width, int height)
+        {
+            texture.Release();
+            texture.width = width;
+            texture.height = height;
+            texture.Create();
+        }
+
+        private static void SetSelectionMask(Material material, Texture? selectionMask)
+        {
+            material.SetTexture(s_SelectionMaskPropertyId, selectionMask);
+            material.SetFloat(s_UseSelectionMaskPropertyId, selectionMask != null ? 1.0f : 0.0f);
+        }
+
+        public void Inverse(Texture? selectionMask = null)
         {
             m_InverseMaterial.SetInt(s_ColorMaskPropertyId, (int)m_ColorMask);
+            SetSelectionMask(m_InverseMaterial, selectionMask);
 
             Graphics.Blit(m_Target, m_Buffer);
             Graphics.Blit(m_Buffer, m_Target, m_InverseMaterial);
@@ -575,6 +708,16 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 DestroyImmediate(m_TriangleMask);
                 m_TriangleMask = null!; // Reset
             }
+            if (m_GradientSource != null)
+            {
+                DestroyImmediate(m_GradientSource);
+                m_GradientSource = null!; // Reset
+            }
+            if (m_GradientPreview != null)
+            {
+                DestroyImmediate(m_GradientPreview);
+                m_GradientPreview = null!; // Reset
+            }
             if (m_FillMaterial != null)
             {
                 DestroyImmediate(m_FillMaterial);
@@ -589,6 +732,11 @@ namespace net.nekobako.MaskTextureEditor.Editor
             {
                 DestroyImmediate(m_TrianglePaintMaterial);
                 m_TrianglePaintMaterial = null!; // Reset
+            }
+            if (m_GradientMaterial != null)
+            {
+                DestroyImmediate(m_GradientMaterial);
+                m_GradientMaterial = null!; // Reset
             }
             if (m_InverseMaterial != null)
             {

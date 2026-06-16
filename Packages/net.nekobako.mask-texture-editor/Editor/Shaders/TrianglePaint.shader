@@ -5,6 +5,8 @@ Shader "Hidden/MaskTextureEditor/TrianglePaint"
         _ColorMask("Color Mask", Int) = 15
         _MainTex("Texture", 2D) = "white" {}
         _TriangleMask("Triangle Mask", 2D) = "black" {}
+        _SelectionMask("Selection Mask", 2D) = "white" {}
+        _UseSelectionMask("Use Selection Mask", Float) = 0.0
         _BrushStrength("Brush Strength", Float) = 1.0
         _BrushColor("Brush Color", Color) = (1.0, 1.0, 1.0, 1.0)
     }
@@ -65,6 +67,8 @@ Shader "Hidden/MaskTextureEditor/TrianglePaint"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             sampler2D _TriangleMask;
+            sampler2D _SelectionMask;
+            float _UseSelectionMask;
             float _BrushStrength;
             float4 _BrushColor;
 
@@ -78,7 +82,8 @@ Shader "Hidden/MaskTextureEditor/TrianglePaint"
 
             float4 frag(v2f i) : SV_Target
             {
-                float strength = tex2D(_TriangleMask, i.uv).r * _BrushStrength;
+                float selection = lerp(1.0, tex2D(_SelectionMask, i.uv).r, _UseSelectionMask);
+                float strength = tex2D(_TriangleMask, i.uv).r * _BrushStrength * selection;
                 return lerp(tex2D(_MainTex, i.uv), _BrushColor, strength);
             }
             ENDCG

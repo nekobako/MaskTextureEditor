@@ -4,6 +4,8 @@ Shader "Hidden/MaskTextureEditor/Inverse"
     {
         _ColorMask("Color Mask", Int) = 15
         _MainTex("Texture", 2D) = "white" {}
+        _SelectionMask("Selection Mask", 2D) = "white" {}
+        _UseSelectionMask("Use Selection Mask", Float) = 0.0
     }
 
     SubShader
@@ -37,6 +39,8 @@ Shader "Hidden/MaskTextureEditor/Inverse"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            sampler2D _SelectionMask;
+            float _UseSelectionMask;
 
             v2f vert(appdata v)
             {
@@ -49,7 +53,9 @@ Shader "Hidden/MaskTextureEditor/Inverse"
             float4 frag(v2f i) : SV_Target
             {
                 float4 color = tex2D(_MainTex, i.uv);
-                return float4(1.0 - color.rgb, color.a);
+                float4 inverse = float4(1.0 - color.rgb, color.a);
+                float selection = lerp(1.0, tex2D(_SelectionMask, i.uv).r, _UseSelectionMask);
+                return lerp(color, inverse, selection);
             }
             ENDCG
         }

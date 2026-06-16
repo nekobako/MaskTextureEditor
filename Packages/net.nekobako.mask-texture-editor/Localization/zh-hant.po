@@ -44,8 +44,125 @@ msgstr "法線"
 msgid "normal-overlay-opacity"
 msgstr "法線不透明度"
 
+msgid "tool-mode"
+msgstr "工具"
+
+msgid "tool-mode-paint"
+msgstr "繪製"
+
+msgid "tool-mode-select-island"
+msgstr "UV 選取"
+
+msgid "tool-mode-gradient"
+msgstr "漸層"
+
+msgid "clear-island-selection"
+msgstr "清除 UV 島選取"
+
+msgid "selection"
+msgstr "選取範圍"
+
+msgid "selection-mask"
+msgstr "選取遮罩"
+
+msgid "selection-scope"
+msgstr "作用範圍"
+
+msgid "selection-whole-texture"
+msgstr "整張貼圖"
+
+msgid "selection-uv-island"
+msgstr "UV 島"
+
+msgid "select-uv-island"
+msgstr "選取 UV 島"
+
+msgid "select-uv-island-active"
+msgstr "點擊 UV 島..."
+
+msgid "show-selection-overlay"
+msgstr "顯示選取覆蓋"
+
+msgid "clear"
+msgstr "清除"
+
+msgid "island-selected"
+msgstr "選取的 UV 島會限制所有繪製與貼圖操作。"
+
+msgid "island-select-hint"
+msgstr "點擊一個面，將其 UV 島設為全域編輯範圍。"
+
+msgid "gradient-start-value"
+msgstr "起始值"
+
+msgid "gradient-end-value"
+msgstr "結束值"
+
+msgid "gradient-value-tooltip"
+msgstr "烘焙到來源 Mask 的混合強度"
+
+msgid "gradient-curve"
+msgstr "曲線"
+
+msgid "gradient-curve-linear"
+msgstr "線性"
+
+msgid "gradient-curve-smooth"
+msgstr "平滑"
+
+msgid "gradient-curve-sharp"
+msgstr "銳利"
+
+msgid "gradient-reverse"
+msgstr "反轉漸層"
+
+msgid "gradient-drag-hint"
+msgstr "在畫布上拖曳，以在選取的 UV 島內套用漸層。"
+
+msgid "gradient-selection-required"
+msgstr "使用漸層工具前請先選取 UV 島。"
+
+msgid "gradient-global-hint"
+msgstr "在畫布上拖曳，以對整張貼圖套用漸層。"
+
+msgid "scope"
+msgstr "作用範圍"
+
+msgid "scope-whole-texture"
+msgstr "整張貼圖"
+
+msgid "scope-uv-island-under-brush"
+msgstr "筆刷下的 UV 島"
+
+msgid "scope-uv-island-under-drag"
+msgstr "拖曳起點的 UV 島"
+
+msgid "gradient-shape"
+msgstr "漸變形狀"
+
+msgid "gradient-shape-line"
+msgstr "線性"
+
+msgid "gradient-shape-band"
+msgstr "帶狀"
+
+msgid "gradient-shape-radial"
+msgstr "放射狀"
+
+msgid "gradient-width"
+msgstr "寬度"
+
+msgid "gradient-feather"
+msgstr "邊緣柔化"
+
+msgid "gradient-drag-island-hint"
+msgstr "在畫布上拖曳。拖曳起點所在的 UV 島會限制本次操作範圍。"
+
+msgid "uv-island-not-found"
+msgstr "游標下方找不到 UV 島。"
+
 msgid "brush-size"
-msgstr "筆刷大小 (Ctrl)"
+msgstr "大小"
 
 msgid "brush-mode"
 msgstr "筆刷模式"
@@ -57,13 +174,13 @@ msgid "brush-mode-triangle"
 msgstr "面"
 
 msgid "brush-hardness"
-msgstr "筆刷硬度 (Ctrl + Alt)"
+msgstr "硬度"
 
 msgid "brush-strength"
-msgstr "筆刷強度 (Ctrl + Shift)"
+msgstr "強度"
 
 msgid "brush-density"
-msgstr "筆刷密度 (Ctrl + Alt + Shift)"
+msgstr "密度"
 
 msgid "brush-color"
 msgstr "筆刷顏色"
@@ -82,6 +199,27 @@ msgstr "填滿白色"
 
 msgid "inverse"
 msgstr "反轉顏色"
+
+msgid "texture-operations"
+msgstr "貼圖操作"
+
+msgid "reset-view-short"
+msgstr "適合"
+
+msgid "zoom"
+msgstr "縮放"
+
+msgid "mask-opacity"
+msgstr "Mask 透明度"
+
+msgid "uv-preview-short"
+msgstr "UV"
+
+msgid "normal-overlay-short"
+msgstr "法線"
+
+msgid "normal-opacity-short"
+msgstr "法線透明度"
 
 msgid "reset-view"
 msgstr "縮放視圖至視窗大小"

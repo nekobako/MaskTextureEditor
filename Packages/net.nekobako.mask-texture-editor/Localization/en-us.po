@@ -44,8 +44,125 @@ msgstr "Normals"
 msgid "normal-overlay-opacity"
 msgstr "Normal Opacity"
 
+msgid "tool-mode"
+msgstr "Tool"
+
+msgid "tool-mode-paint"
+msgstr "Paint"
+
+msgid "tool-mode-select-island"
+msgstr "UV Selection"
+
+msgid "tool-mode-gradient"
+msgstr "Gradient"
+
+msgid "clear-island-selection"
+msgstr "Clear Island Selection"
+
+msgid "selection"
+msgstr "Selection"
+
+msgid "selection-mask"
+msgstr "Selection Mask"
+
+msgid "selection-scope"
+msgstr "Scope"
+
+msgid "selection-whole-texture"
+msgstr "Whole Texture"
+
+msgid "selection-uv-island"
+msgstr "UV Island"
+
+msgid "select-uv-island"
+msgstr "Select UV Island"
+
+msgid "select-uv-island-active"
+msgstr "Click UV Island..."
+
+msgid "show-selection-overlay"
+msgstr "Show Overlay"
+
+msgid "clear"
+msgstr "Clear"
+
+msgid "island-selected"
+msgstr "The selected UV island now limits every paint and texture operation."
+
+msgid "island-select-hint"
+msgstr "Click a face to use its UV island as the global editing selection."
+
+msgid "gradient-start-value"
+msgstr "Start Value"
+
+msgid "gradient-end-value"
+msgstr "End Value"
+
+msgid "gradient-value-tooltip"
+msgstr "Blend strength baked into the source mask"
+
+msgid "gradient-curve"
+msgstr "Curve"
+
+msgid "gradient-curve-linear"
+msgstr "Linear"
+
+msgid "gradient-curve-smooth"
+msgstr "Smooth"
+
+msgid "gradient-curve-sharp"
+msgstr "Sharp"
+
+msgid "gradient-reverse"
+msgstr "Reverse Gradient"
+
+msgid "gradient-drag-hint"
+msgstr "Drag in the canvas to apply a gradient inside the selected island."
+
+msgid "gradient-selection-required"
+msgstr "Select an UV island before using the gradient tool."
+
+msgid "gradient-global-hint"
+msgstr "Drag in the canvas to apply a gradient to the whole texture."
+
+msgid "scope"
+msgstr "Scope"
+
+msgid "scope-whole-texture"
+msgstr "Whole Texture"
+
+msgid "scope-uv-island-under-brush"
+msgstr "UV Island Under Brush"
+
+msgid "scope-uv-island-under-drag"
+msgstr "UV Island Under Drag"
+
+msgid "gradient-shape"
+msgstr "Shape"
+
+msgid "gradient-shape-line"
+msgstr "Line"
+
+msgid "gradient-shape-band"
+msgstr "Band"
+
+msgid "gradient-shape-radial"
+msgstr "Radial"
+
+msgid "gradient-width"
+msgstr "Width"
+
+msgid "gradient-feather"
+msgstr "Feather"
+
+msgid "gradient-drag-island-hint"
+msgstr "Drag in the canvas. The UV island under the drag start limits this operation."
+
+msgid "uv-island-not-found"
+msgstr "No UV island found under the cursor."
+
 msgid "brush-size"
-msgstr "Brush Size (Ctrl)"
+msgstr "Size"
 
 msgid "brush-mode"
 msgstr "Brush Mode"
@@ -57,13 +174,13 @@ msgid "brush-mode-triangle"
 msgstr "Face"
 
 msgid "brush-hardness"
-msgstr "Brush Hardness (Ctrl + Alt)"
+msgstr "Hardness"
 
 msgid "brush-strength"
-msgstr "Brush Strength (Ctrl + Shift)"
+msgstr "Strength"
 
 msgid "brush-density"
-msgstr "Brush Density (Ctrl + Alt + Shift)"
+msgstr "Density"
 
 msgid "brush-color"
 msgstr "Brush Color"
@@ -82,6 +199,27 @@ msgstr "Fill White"
 
 msgid "inverse"
 msgstr "Inverse Color"
+
+msgid "texture-operations"
+msgstr "Texture Operations"
+
+msgid "reset-view-short"
+msgstr "Fit"
+
+msgid "zoom"
+msgstr "Zoom"
+
+msgid "mask-opacity"
+msgstr "Mask Opacity"
+
+msgid "uv-preview-short"
+msgstr "UV"
+
+msgid "normal-overlay-short"
+msgstr "Normals"
+
+msgid "normal-opacity-short"
+msgstr "Normal Opacity"
 
 msgid "reset-view"
 msgstr "Fit the view to the window"
