@@ -15,8 +15,8 @@ namespace net.nekobako.MaskTextureEditor.Editor
     {
         private enum ToolMode
         {
-            Paint = 0,
-            Gradient = 2,
+            Paint,
+            Gradient,
         }
 
         private enum OperationScope
@@ -68,7 +68,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const float k_ViewOpacityMin = 0.0f;
         private const float k_ViewOpacityMax = 1.0f;
         private const float k_ViewOpacityFactor = 0.01f;
-        private const float k_BrushSizeMin = 10.0f;
+        private const float k_BrushSizeMin = 1.0f;
         private const float k_BrushSizeMax = 1000.0f;
         private const float k_BrushSizeFactor = 0.1f;
         private const float k_BrushHardnessMin = 0.0f;
@@ -87,8 +87,8 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const float k_GradientWidthMax = 512.0f;
         private const float k_GradientWidthFactor = 0.1f;
         private const float k_GradientFeatherMin = 0.0f;
-        private const float k_GradientFeatherMax = 512.0f;
-        private const float k_GradientFeatherFactor = 0.1f;
+        private const float k_GradientFeatherMax = 2.0f;
+        private const float k_GradientFeatherFactor = 0.01f;
         private const float k_SidebarWidth = 320.0f;
         private const float k_CanvasToolbarCompactWidth = 800.0f;
 
@@ -126,7 +126,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private bool m_ShowUvPreview = true;
 
         [SerializeField]
-        private bool m_ShowNormalOverlay = true;
+        private bool m_ShowNormalOverlay = false;
 
         [SerializeField]
         private float m_NormalOverlayOpacity = 0.35f;
@@ -156,7 +156,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private float m_GradientWidth = 128.0f;
 
         [SerializeField]
-        private float m_GradientFeather = 32.0f;
+        private float m_GradientFeather = 0.2f;
 
         [SerializeField]
         private Vector2 m_SidebarScrollPosition = Vector2.zero;
@@ -691,7 +691,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
         private void DrawViewControls()
         {
-            if (GUILayout.Button(new GUIContent(CL4EE.Tr("reset-view-short"), CL4EE.Tr("reset-view")), EditorStyles.toolbarButton, GUILayout.Width(42.0f)))
+            if (GUILayout.Button(new GUIContent(CL4EE.Tr("reset-view-short"), CL4EE.Tr("reset-view")), EditorStyles.toolbarButton, GUILayout.Width(144.0f)))
             {
                 m_RequestResetView = true;
             }
@@ -727,7 +727,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 m_ShowUvPreview,
                 CL4EE.Tr("uv-preview-short"),
                 EditorStyles.toolbarButton,
-                GUILayout.Width(36.0f));
+                GUILayout.Width(70.0f));
             GUILayout.Space(4.0f);
             m_ShowNormalOverlay = GUILayout.Toggle(
                 m_ShowNormalOverlay,
@@ -761,6 +761,14 @@ namespace net.nekobako.MaskTextureEditor.Editor
             GUI.color = new(1.0f, 1.0f, 1.0f, m_ViewOpacity);
             m_TexturePainter.Draw(rect, brush && m_ToolMode == ToolMode.Paint);
 
+            if (m_ToolMode == ToolMode.Gradient)
+            {
+                DrawGradientPreview(rect, brush);
+            }
+        }
+
+        private void DrawGradientPreview(Rect rect, bool hover)
+        {
             if (m_IsGradientDragging)
             {
                 var start = Rect.NormalizedToPoint(rect, new(m_GradientStart.x, 1.0f - m_GradientStart.y));
@@ -769,6 +777,86 @@ namespace net.nekobako.MaskTextureEditor.Editor
                 Handles.DrawAAPolyLine(3.0f, start, end);
                 Handles.DrawSolidDisc(start, Vector3.forward, 4.0f);
                 Handles.DrawWireDisc(end, Vector3.forward, 6.0f);
+
+                switch (m_GradientShape)
+                {
+                    case GradientShape.Band:
+                        DrawBandPreview(start, end);
+                        break;
+                    case GradientShape.Radial:
+                        DrawRadialPreview(start, end);
+                        break;
+                }
+                return;
+            }
+
+            if (hover && m_GradientShape == GradientShape.Band)
+            {
+                DrawBandHoverPreview(Event.current.mousePosition);
+            }
+        }
+
+        private void DrawBandPreview(Vector2 start, Vector2 end)
+        {
+            var direction = end - start;
+            if (direction.sqrMagnitude <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            var normal = Vector2.Perpendicular(direction).normalized;
+            var halfWidth = m_GradientWidth * m_ViewScale * 0.5f;
+            var outerHalfWidth = halfWidth * (1.0f + m_GradientFeather);
+
+            DrawOffsetSegment(start, end, normal, halfWidth, new(0.0f, 1.0f, 1.0f, 0.9f), false);
+            DrawOffsetSegment(start, end, normal, -halfWidth, new(0.0f, 1.0f, 1.0f, 0.9f), false);
+
+            if (outerHalfWidth > halfWidth)
+            {
+                DrawOffsetSegment(start, end, normal, outerHalfWidth, new(0.0f, 1.0f, 1.0f, 0.45f), true);
+                DrawOffsetSegment(start, end, normal, -outerHalfWidth, new(0.0f, 1.0f, 1.0f, 0.45f), true);
+            }
+        }
+
+        private void DrawBandHoverPreview(Vector2 center)
+        {
+            var halfWidth = m_GradientWidth * m_ViewScale * 0.5f;
+            var outerHalfWidth = halfWidth * (1.0f + m_GradientFeather);
+
+            Handles.color = new(0.0f, 1.0f, 1.0f, 0.9f);
+            Handles.DrawWireDisc(center, Vector3.forward, halfWidth);
+
+            if (outerHalfWidth > halfWidth)
+            {
+                Handles.color = new(0.0f, 1.0f, 1.0f, 0.45f);
+                Handles.DrawWireDisc(center, Vector3.forward, outerHalfWidth);
+            }
+        }
+
+        private void DrawRadialPreview(Vector2 start, Vector2 end)
+        {
+            var radius = (end - start).magnitude;
+            Handles.color = new(0.0f, 1.0f, 1.0f, 0.65f);
+            Handles.DrawWireDisc(start, Vector3.forward, radius);
+            if (m_GradientFeather > 0.0f)
+            {
+                Handles.color = new(0.0f, 1.0f, 1.0f, 0.35f);
+                Handles.DrawWireDisc(start, Vector3.forward, radius * (1.0f + m_GradientFeather));
+            }
+        }
+
+        private static void DrawOffsetSegment(Vector2 start, Vector2 end, Vector2 normal, float offset, Color color, bool dotted)
+        {
+            var a = start + normal * offset;
+            var b = end + normal * offset;
+            Handles.color = color;
+            if (dotted)
+            {
+                Handles.DrawDottedLine(a, b, 4.0f);
+            }
+            else
+            {
+                Handles.DrawAAPolyLine(2.0f, a, b);
             }
         }
 
@@ -971,7 +1059,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
                             Events.GradientFeather)
                         {
                             // Adjust the gradient feather
-                            m_GradientFeather = Mathf.Max(1.0f, m_GradientFeather) * (1.0f - delta * k_GradientFeatherFactor);
+                            m_GradientFeather -= delta * k_GradientFeatherFactor;
                             m_GradientFeather = Mathf.Clamp(m_GradientFeather, k_GradientFeatherMin, k_GradientFeatherMax);
                         }
                         else

@@ -14,7 +14,7 @@ Shader "Hidden/MaskTextureEditor/Gradient"
         _TextureSize("Texture Size", Vector) = (1.0, 1.0, 0.0, 0.0)
         _GradientShape("Gradient Shape", Int) = 0
         _GradientWidth("Gradient Width", Float) = 128.0
-        _GradientFeather("Gradient Feather", Float) = 32.0
+        _GradientFeather("Gradient Feather", Float) = 0.2
     }
 
     SubShader
@@ -85,7 +85,7 @@ Shader "Hidden/MaskTextureEditor/Gradient"
                     float halfWidth = max(_GradientWidth * 0.5, 0.0);
                     float feather = max(_GradientFeather, 1e-4);
                     float segmentMask = step(0.0, rawT) * step(rawT, 1.0);
-                    shapeMask = (1.0 - smoothstep(halfWidth, halfWidth + feather, distanceToBand)) * segmentMask;
+                    shapeMask = (1.0 - smoothstep(halfWidth, halfWidth * (1.0 + feather), distanceToBand)) * segmentMask;
                 }
                 else if (_GradientShape == 2)
                 {
@@ -93,16 +93,16 @@ Shader "Hidden/MaskTextureEditor/Gradient"
                     float distanceToCenter = length(pixel - start);
                     t = saturate(distanceToCenter / radius);
                     float feather = max(_GradientFeather, 1e-4);
-                    shapeMask = 1.0 - smoothstep(radius, radius + feather, distanceToCenter);
+                    shapeMask = 1.0 - smoothstep(radius, radius * (1.0 + feather), distanceToCenter);
                 }
                 float exponent = max(_CurveExponent, 1e-4);
                 float curveStart = pow(t, exponent);
                 float curveEnd = pow(1.0 - t, exponent);
                 t = curveStart / max(curveStart + curveEnd, 1e-6);
-                float value = lerp(_StartValue, _EndValue, t);
+                float value = saturate(lerp(_StartValue, _EndValue, t));
                 float selection = lerp(1.0, tex2D(_SelectionMask, i.uv).r, _UseSelectionMask) * shapeMask;
-                float strength = saturate(value) * selection;
-                return lerp(tex2D(_MainTex, i.uv), float4(1.0, 1.0, 1.0, 1.0), strength);
+                float4 color = tex2D(_MainTex, i.uv);
+                return lerp(color, float4(value, value, value, 1.0), selection);
             }
             ENDCG
         }

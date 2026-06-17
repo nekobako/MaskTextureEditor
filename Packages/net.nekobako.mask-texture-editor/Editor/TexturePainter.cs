@@ -127,6 +127,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const string k_TrianglePaintShaderName = "Hidden/MaskTextureEditor/TrianglePaint";
         private const string k_GradientShaderName = "Hidden/MaskTextureEditor/Gradient";
         private const string k_InverseShaderName = "Hidden/MaskTextureEditor/Inverse";
+        private const float k_TriangleMaskPadding = 0.75f;
 
         private static readonly int s_ColorMaskPropertyId = Shader.PropertyToID("_ColorMask");
         private static readonly int s_ColorPropertyId = Shader.PropertyToID("_Color");
@@ -596,9 +597,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
             GL.Begin(GL.TRIANGLES);
             foreach (var offset in hitTriangles)
             {
-                GL.Vertex3(points[indices[offset]].x, points[indices[offset]].y, 0.0f);
-                GL.Vertex3(points[indices[offset + 1]].x, points[indices[offset + 1]].y, 0.0f);
-                GL.Vertex3(points[indices[offset + 2]].x, points[indices[offset + 2]].y, 0.0f);
+                EmitPaddedUvTriangle(points, indices, offset, TextureSize, k_TriangleMaskPadding);
             }
             GL.End();
             GL.PopMatrix();
@@ -665,6 +664,50 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private static float Cross(Vector2 a, Vector2 b)
         {
             return a.x * b.y - a.y * b.x;
+        }
+
+        internal static void EmitPaddedUvTriangle(
+            Vector2[] points,
+            int[] indices,
+            int offset,
+            Vector2 textureSize,
+            float padding)
+        {
+            var a = points[indices[offset]];
+            var b = points[indices[offset + 1]];
+            var c = points[indices[offset + 2]];
+
+            if (padding > 0.0f && textureSize.x > 0.0f && textureSize.y > 0.0f)
+            {
+                var pixelScale = new Vector2(textureSize.x, textureSize.y);
+                var pixelA = Vector2.Scale(a, pixelScale);
+                var pixelB = Vector2.Scale(b, pixelScale);
+                var pixelC = Vector2.Scale(c, pixelScale);
+                var center = (pixelA + pixelB + pixelC) / 3.0f;
+
+                pixelA = PadTriangleVertex(pixelA, center, padding);
+                pixelB = PadTriangleVertex(pixelB, center, padding);
+                pixelC = PadTriangleVertex(pixelC, center, padding);
+
+                a = new(pixelA.x / textureSize.x, pixelA.y / textureSize.y);
+                b = new(pixelB.x / textureSize.x, pixelB.y / textureSize.y);
+                c = new(pixelC.x / textureSize.x, pixelC.y / textureSize.y);
+            }
+
+            GL.Vertex3(a.x, a.y, 0.0f);
+            GL.Vertex3(b.x, b.y, 0.0f);
+            GL.Vertex3(c.x, c.y, 0.0f);
+        }
+
+        private static Vector2 PadTriangleVertex(Vector2 vertex, Vector2 center, float padding)
+        {
+            var direction = vertex - center;
+            if (direction.sqrMagnitude <= Mathf.Epsilon)
+            {
+                return vertex;
+            }
+
+            return vertex + direction.normalized * padding;
         }
 
         private static void ResizeRenderTexture(RenderTexture texture, int width, int height)

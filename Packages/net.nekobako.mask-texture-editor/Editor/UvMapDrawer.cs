@@ -9,6 +9,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         private const string k_NormalOverlayShaderName = "Hidden/MaskTextureEditor/NormalOverlay";
         private const string k_SelectionMaskShaderName = "Hidden/MaskTextureEditor/SelectionOverlay";
         private const float k_SelectionOverlayOpacity = 0.4f;
+        private const float k_SelectionMaskPadding = 0.75f;
 
         [SerializeField]
         private Renderer? m_Renderer = null;
@@ -246,9 +247,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
             foreach (var triangle in m_Data.Topology.GetIslandTriangles(m_ActiveIsland))
             {
                 var offset = triangle * 3;
-                GL.Vertex3(m_Data.Points[m_Data.TriangleIndices[offset]].x, m_Data.Points[m_Data.TriangleIndices[offset]].y, 0.0f);
-                GL.Vertex3(m_Data.Points[m_Data.TriangleIndices[offset + 1]].x, m_Data.Points[m_Data.TriangleIndices[offset + 1]].y, 0.0f);
-                GL.Vertex3(m_Data.Points[m_Data.TriangleIndices[offset + 2]].x, m_Data.Points[m_Data.TriangleIndices[offset + 2]].y, 0.0f);
+                TexturePainter.EmitPaddedUvTriangle(
+                    m_Data.Points,
+                    m_Data.TriangleIndices,
+                    offset,
+                    new(textureSize.x, textureSize.y),
+                    k_SelectionMaskPadding);
             }
             GL.End();
             GL.PopMatrix();
@@ -316,20 +320,6 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
             m_ActiveIsland = -1;
             ReleaseSelectionMask();
-        }
-
-        public bool TryGetActiveIsland(out MeshUvData data, out IReadOnlyList<int> triangles)
-        {
-            if (m_ActiveIsland >= 0 && m_Data?.Topology != null)
-            {
-                data = m_Data;
-                triangles = m_Data.Topology.GetIslandTriangles(m_ActiveIsland);
-                return true;
-            }
-
-            data = null!;
-            triangles = null!;
-            return false;
         }
 
         private (Mesh?, Material?) CollectMeshAndMaterial()

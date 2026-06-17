@@ -1,0 +1,9 @@
+* text=auto
+
+*.asmdef text eol=lf
+*.cs text eol=lf
+*.json text eol=lf
+*.meta text eol=lf
+*.po text eol=lf
+*.rsp text eol=lf
+*.shader text eol=lf
