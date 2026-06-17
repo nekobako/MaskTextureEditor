@@ -29,68 +29,14 @@ msgstr "マテリアルスロット"
 msgid "view-scale"
 msgstr "表示倍率"
 
-msgid "view-opacity"
-msgstr "表示透明度 (Shift)"
-
-msgid "preview-layers"
-msgstr "プレビューレイヤー"
-
-msgid "uv-preview"
-msgstr "UV ワイヤーフレーム"
-
-msgid "normal-overlay"
-msgstr "法線"
-
-msgid "normal-overlay-opacity"
-msgstr "法線の不透明度"
-
 msgid "tool-mode"
 msgstr "ツール"
 
 msgid "tool-mode-paint"
 msgstr "描画"
 
-msgid "tool-mode-select-island"
-msgstr "UV 選択"
-
 msgid "tool-mode-gradient"
 msgstr "グラデーション"
-
-msgid "clear-island-selection"
-msgstr "UV アイランド選択を解除"
-
-msgid "selection"
-msgstr "選択範囲"
-
-msgid "selection-mask"
-msgstr "選択マスク"
-
-msgid "selection-scope"
-msgstr "適用範囲"
-
-msgid "selection-whole-texture"
-msgstr "テクスチャ全体"
-
-msgid "selection-uv-island"
-msgstr "UV アイランド"
-
-msgid "select-uv-island"
-msgstr "UV アイランドを選択"
-
-msgid "select-uv-island-active"
-msgstr "UV アイランドをクリック..."
-
-msgid "show-selection-overlay"
-msgstr "選択範囲を表示"
-
-msgid "clear"
-msgstr "解除"
-
-msgid "island-selected"
-msgstr "選択した UV アイランドがすべての描画とテクスチャ操作を制限します。"
-
-msgid "island-select-hint"
-msgstr "面をクリックして、その UV アイランドを編集範囲として使用します。"
 
 msgid "gradient-start-value"
 msgstr "開始値"
@@ -115,12 +61,6 @@ msgstr "シャープ"
 
 msgid "gradient-reverse"
 msgstr "グラデーションを反転"
-
-msgid "gradient-drag-hint"
-msgstr "キャンバス上でドラッグして、選択したアイランド内にグラデーションを適用します。"
-
-msgid "gradient-selection-required"
-msgstr "グラデーションを使用する前に UV アイランドを選択してください。"
 
 msgid "gradient-global-hint"
 msgstr "キャンバス上でドラッグして、テクスチャ全体にグラデーションを適用します。"

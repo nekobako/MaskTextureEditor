@@ -29,68 +29,14 @@ msgstr "Material Slot"
 msgid "view-scale"
 msgstr "View Scale"
 
-msgid "view-opacity"
-msgstr "View Opacity (Shift)"
-
-msgid "preview-layers"
-msgstr "Preview Layers"
-
-msgid "uv-preview"
-msgstr "UV Wireframe"
-
-msgid "normal-overlay"
-msgstr "Normals"
-
-msgid "normal-overlay-opacity"
-msgstr "Normal Opacity"
-
 msgid "tool-mode"
 msgstr "Tool"
 
 msgid "tool-mode-paint"
 msgstr "Paint"
 
-msgid "tool-mode-select-island"
-msgstr "UV Selection"
-
 msgid "tool-mode-gradient"
 msgstr "Gradient"
-
-msgid "clear-island-selection"
-msgstr "Clear Island Selection"
-
-msgid "selection"
-msgstr "Selection"
-
-msgid "selection-mask"
-msgstr "Selection Mask"
-
-msgid "selection-scope"
-msgstr "Scope"
-
-msgid "selection-whole-texture"
-msgstr "Whole Texture"
-
-msgid "selection-uv-island"
-msgstr "UV Island"
-
-msgid "select-uv-island"
-msgstr "Select UV Island"
-
-msgid "select-uv-island-active"
-msgstr "Click UV Island..."
-
-msgid "show-selection-overlay"
-msgstr "Show Overlay"
-
-msgid "clear"
-msgstr "Clear"
-
-msgid "island-selected"
-msgstr "The selected UV island now limits every paint and texture operation."
-
-msgid "island-select-hint"
-msgstr "Click a face to use its UV island as the global editing selection."
 
 msgid "gradient-start-value"
 msgstr "Start Value"
@@ -115,12 +61,6 @@ msgstr "Sharp"
 
 msgid "gradient-reverse"
 msgstr "Reverse Gradient"
-
-msgid "gradient-drag-hint"
-msgstr "Drag in the canvas to apply a gradient inside the selected island."
-
-msgid "gradient-selection-required"
-msgstr "Select an UV island before using the gradient tool."
 
 msgid "gradient-global-hint"
 msgstr "Drag in the canvas to apply a gradient to the whole texture."

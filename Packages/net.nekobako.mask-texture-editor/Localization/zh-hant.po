@@ -29,68 +29,14 @@ msgstr "材質槽"
 msgid "view-scale"
 msgstr "視圖縮放"
 
-msgid "view-opacity"
-msgstr "視圖透明度 (Shift)"
-
-msgid "preview-layers"
-msgstr "預覽圖層"
-
-msgid "uv-preview"
-msgstr "UV 線框"
-
-msgid "normal-overlay"
-msgstr "法線"
-
-msgid "normal-overlay-opacity"
-msgstr "法線不透明度"
-
 msgid "tool-mode"
 msgstr "工具"
 
 msgid "tool-mode-paint"
 msgstr "繪製"
 
-msgid "tool-mode-select-island"
-msgstr "UV 選取"
-
 msgid "tool-mode-gradient"
 msgstr "漸層"
-
-msgid "clear-island-selection"
-msgstr "清除 UV 島選取"
-
-msgid "selection"
-msgstr "選取範圍"
-
-msgid "selection-mask"
-msgstr "選取遮罩"
-
-msgid "selection-scope"
-msgstr "作用範圍"
-
-msgid "selection-whole-texture"
-msgstr "整張貼圖"
-
-msgid "selection-uv-island"
-msgstr "UV 島"
-
-msgid "select-uv-island"
-msgstr "選取 UV 島"
-
-msgid "select-uv-island-active"
-msgstr "點擊 UV 島..."
-
-msgid "show-selection-overlay"
-msgstr "顯示選取覆蓋"
-
-msgid "clear"
-msgstr "清除"
-
-msgid "island-selected"
-msgstr "選取的 UV 島會限制所有繪製與貼圖操作。"
-
-msgid "island-select-hint"
-msgstr "點擊一個面，將其 UV 島設為全域編輯範圍。"
 
 msgid "gradient-start-value"
 msgstr "起始值"
@@ -115,12 +61,6 @@ msgstr "銳利"
 
 msgid "gradient-reverse"
 msgstr "反轉漸層"
-
-msgid "gradient-drag-hint"
-msgstr "在畫布上拖曳，以在選取的 UV 島內套用漸層。"
-
-msgid "gradient-selection-required"
-msgstr "使用漸層工具前請先選取 UV 島。"
 
 msgid "gradient-global-hint"
 msgstr "在畫布上拖曳，以對整張貼圖套用漸層。"
