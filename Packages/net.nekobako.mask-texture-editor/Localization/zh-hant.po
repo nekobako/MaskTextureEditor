@@ -29,20 +29,98 @@ msgstr "材質槽"
 msgid "view-scale"
 msgstr "視圖縮放"
 
-msgid "view-opacity"
-msgstr "視圖透明度 (Shift)"
+msgid "tool-mode"
+msgstr "工具"
+
+msgid "tool-mode-paint"
+msgstr "繪製"
+
+msgid "tool-mode-gradient"
+msgstr "漸層"
+
+msgid "gradient-start-value"
+msgstr "起始值"
+
+msgid "gradient-end-value"
+msgstr "結束值"
+
+msgid "gradient-value-tooltip"
+msgstr "烘焙到來源 Mask 的混合強度"
+
+msgid "gradient-curve"
+msgstr "曲線"
+
+msgid "gradient-curve-linear"
+msgstr "線性"
+
+msgid "gradient-curve-smooth"
+msgstr "平滑"
+
+msgid "gradient-curve-sharp"
+msgstr "銳利"
+
+msgid "gradient-reverse"
+msgstr "反轉漸層"
+
+msgid "gradient-global-hint"
+msgstr "在畫布上拖曳，以對整張貼圖套用漸層。"
+
+msgid "scope"
+msgstr "作用範圍"
+
+msgid "scope-whole-texture"
+msgstr "整張貼圖"
+
+msgid "scope-uv-island-under-brush"
+msgstr "筆刷下的 UV 島"
+
+msgid "scope-uv-island-under-drag"
+msgstr "拖曳起點的 UV 島"
+
+msgid "gradient-shape"
+msgstr "漸變形狀"
+
+msgid "gradient-shape-line"
+msgstr "線性"
+
+msgid "gradient-shape-band"
+msgstr "帶狀"
+
+msgid "gradient-shape-radial"
+msgstr "放射狀"
+
+msgid "gradient-width"
+msgstr "寬度"
+
+msgid "gradient-feather"
+msgstr "邊緣柔化"
+
+msgid "gradient-drag-island-hint"
+msgstr "在畫布上拖曳。拖曳起點所在的 UV 島會限制本次操作範圍。"
+
+msgid "uv-island-not-found"
+msgstr "游標下方找不到 UV 島。"
 
 msgid "brush-size"
-msgstr "筆刷大小 (Ctrl)"
+msgstr "大小"
+
+msgid "brush-mode"
+msgstr "筆刷模式"
+
+msgid "brush-mode-circle"
+msgstr "圓形"
+
+msgid "brush-mode-triangle"
+msgstr "面"
 
 msgid "brush-hardness"
-msgstr "筆刷硬度 (Ctrl + Alt)"
+msgstr "硬度"
 
 msgid "brush-strength"
-msgstr "筆刷強度 (Ctrl + Shift)"
+msgstr "強度"
 
 msgid "brush-density"
-msgstr "筆刷密度 (Ctrl + Alt + Shift)"
+msgstr "密度"
 
 msgid "brush-color"
 msgstr "筆刷顏色"
@@ -61,6 +139,27 @@ msgstr "填滿白色"
 
 msgid "inverse"
 msgstr "反轉顏色"
+
+msgid "texture-operations"
+msgstr "貼圖操作"
+
+msgid "reset-view-short"
+msgstr "適合"
+
+msgid "zoom"
+msgstr "縮放"
+
+msgid "mask-opacity"
+msgstr "Mask 透明度"
+
+msgid "uv-preview-short"
+msgstr "UV"
+
+msgid "normal-overlay-short"
+msgstr "法線"
+
+msgid "normal-opacity-short"
+msgstr "法線透明度"
 
 msgid "reset-view"
 msgstr "縮放視圖至視窗大小"

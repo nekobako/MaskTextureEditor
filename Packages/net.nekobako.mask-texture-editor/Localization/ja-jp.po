@@ -29,20 +29,98 @@ msgstr "マテリアルスロット"
 msgid "view-scale"
 msgstr "表示倍率"
 
-msgid "view-opacity"
-msgstr "表示透明度 (Shift)"
+msgid "tool-mode"
+msgstr "ツール"
+
+msgid "tool-mode-paint"
+msgstr "描画"
+
+msgid "tool-mode-gradient"
+msgstr "グラデーション"
+
+msgid "gradient-start-value"
+msgstr "開始値"
+
+msgid "gradient-end-value"
+msgstr "終了値"
+
+msgid "gradient-value-tooltip"
+msgstr "元のマスクへ焼き込むブレンド強度"
+
+msgid "gradient-curve"
+msgstr "カーブ"
+
+msgid "gradient-curve-linear"
+msgstr "リニア"
+
+msgid "gradient-curve-smooth"
+msgstr "スムーズ"
+
+msgid "gradient-curve-sharp"
+msgstr "シャープ"
+
+msgid "gradient-reverse"
+msgstr "グラデーションを反転"
+
+msgid "gradient-global-hint"
+msgstr "キャンバス上でドラッグして、テクスチャ全体にグラデーションを適用します。"
+
+msgid "scope"
+msgstr "適用範囲"
+
+msgid "scope-whole-texture"
+msgstr "テクスチャ全体"
+
+msgid "scope-uv-island-under-brush"
+msgstr "ブラシ下の UV アイランド"
+
+msgid "scope-uv-island-under-drag"
+msgstr "ドラッグ開始位置の UV アイランド"
+
+msgid "gradient-shape"
+msgstr "形状"
+
+msgid "gradient-shape-line"
+msgstr "ライン"
+
+msgid "gradient-shape-band"
+msgstr "帯状"
+
+msgid "gradient-shape-radial"
+msgstr "放射状"
+
+msgid "gradient-width"
+msgstr "幅"
+
+msgid "gradient-feather"
+msgstr "フェザー"
+
+msgid "gradient-drag-island-hint"
+msgstr "キャンバス上でドラッグします。ドラッグ開始位置の UV アイランドが今回の操作範囲を制限します。"
+
+msgid "uv-island-not-found"
+msgstr "カーソル下に UV アイランドが見つかりません。"
 
 msgid "brush-size"
-msgstr "ブラシサイズ (Ctrl)"
+msgstr "サイズ"
+
+msgid "brush-mode"
+msgstr "ブラシモード"
+
+msgid "brush-mode-circle"
+msgstr "円形"
+
+msgid "brush-mode-triangle"
+msgstr "面"
 
 msgid "brush-hardness"
-msgstr "ブラシ硬度 (Ctrl + Alt)"
+msgstr "硬度"
 
 msgid "brush-strength"
-msgstr "ブラシ強度 (Ctrl + Shift)"
+msgstr "強度"
 
 msgid "brush-density"
-msgstr "ブラシ密度 (Ctrl + Alt + Shift)"
+msgstr "密度"
 
 msgid "brush-color"
 msgstr "ブラシカラー"
@@ -61,6 +139,27 @@ msgstr "白で塗りつぶす"
 
 msgid "inverse"
 msgstr "色を反転させる"
+
+msgid "texture-operations"
+msgstr "テクスチャ操作"
+
+msgid "reset-view-short"
+msgstr "全体"
+
+msgid "zoom"
+msgstr "倍率"
+
+msgid "mask-opacity"
+msgstr "マスク不透明度"
+
+msgid "uv-preview-short"
+msgstr "UV"
+
+msgid "normal-overlay-short"
+msgstr "法線"
+
+msgid "normal-opacity-short"
+msgstr "法線不透明度"
 
 msgid "reset-view"
 msgstr "表示をウィンドウに合わせる"

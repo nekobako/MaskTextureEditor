@@ -1,19 +1,45 @@
-Shader "Hidden/MaskTextureEditor/Fill"
+Shader "Hidden/MaskTextureEditor/TrianglePaint"
 {
     Properties
     {
         _ColorMask("Color Mask", Int) = 15
         _MainTex("Texture", 2D) = "white" {}
-        _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
+        _TriangleMask("Triangle Mask", 2D) = "black" {}
         _SelectionMask("Selection Mask", 2D) = "white" {}
         _UseSelectionMask("Use Selection Mask", Float) = 0.0
+        _BrushStrength("Brush Strength", Float) = 1.0
+        _BrushColor("Brush Color", Color) = (1.0, 1.0, 1.0, 1.0)
     }
 
     SubShader
     {
         Tags
         {
-            "RenderType" = "Opaque"
+            "RenderType" = "Transparent"
+        }
+
+        Pass
+        {
+            Cull Off
+            ZTest Always
+            ZWrite Off
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            float4 vert(float4 vertex : POSITION) : SV_POSITION
+            {
+                return UnityObjectToClipPos(vertex);
+            }
+
+            float4 frag() : SV_Target
+            {
+                return 1.0;
+            }
+            ENDCG
         }
 
         Pass
@@ -40,9 +66,11 @@ Shader "Hidden/MaskTextureEditor/Fill"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float4 _Color;
+            sampler2D _TriangleMask;
             sampler2D _SelectionMask;
             float _UseSelectionMask;
+            float _BrushStrength;
+            float4 _BrushColor;
 
             v2f vert(appdata v)
             {
@@ -55,7 +83,8 @@ Shader "Hidden/MaskTextureEditor/Fill"
             float4 frag(v2f i) : SV_Target
             {
                 float selection = lerp(1.0, tex2D(_SelectionMask, i.uv).r, _UseSelectionMask);
-                return lerp(tex2D(_MainTex, i.uv), _Color, selection);
+                float strength = tex2D(_TriangleMask, i.uv).r * _BrushStrength * selection;
+                return lerp(tex2D(_MainTex, i.uv), _BrushColor, strength);
             }
             ENDCG
         }

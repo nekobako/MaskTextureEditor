@@ -89,7 +89,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
 
             if (m_Counter.Count > 0)
             {
-                UnityEditor.Undo.RecordObject(m_Counter, "Modify Texture");
+                UnityEditor.Undo.RegisterCompleteObjectUndo(m_Counter, "Modify Texture");
             }
             m_Counter.Count++;
         }
@@ -98,7 +98,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         {
             if (CanUndo)
             {
-                UnityEditor.Undo.RecordObject(m_Counter, "Undo Texture");
+                UnityEditor.Undo.RegisterCompleteObjectUndo(m_Counter, "Undo Texture");
                 m_Counter.Count--;
 
                 Apply();
@@ -109,7 +109,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         {
             if (CanRedo)
             {
-                UnityEditor.Undo.RecordObject(m_Counter, "Redo Texture");
+                UnityEditor.Undo.RegisterCompleteObjectUndo(m_Counter, "Redo Texture");
                 m_Counter.Count++;
 
                 Apply();
@@ -132,6 +132,7 @@ namespace net.nekobako.MaskTextureEditor.Editor
         {
             Graphics.Blit(Peek(), m_Target);
             RenderTexture.active = null;
+            Window.RepaintIfOpen();
         }
 
         private void OnDestroy()

@@ -9,6 +9,8 @@ Shader "Hidden/MaskTextureEditor/Paint"
         _BrushStrength("Brush Strength", Float) = 1.0
         _BrushColor("Brush Color", Color) = (1.0, 1.0, 1.0, 1.0)
         _BrushPosition("Brush Position", Vector) = (0.5, 0.5, 0.0, 0.0)
+        _SelectionMask("Selection Mask", 2D) = "white" {}
+        _UseSelectionMask("Use Selection Mask", Float) = 0.0
     }
 
     SubShader
@@ -49,6 +51,8 @@ Shader "Hidden/MaskTextureEditor/Paint"
             float _BrushStrength;
             float4 _BrushColor;
             float2 _BrushPosition;
+            sampler2D _SelectionMask;
+            float _UseSelectionMask;
 
             v2f vert(appdata v)
             {
@@ -62,7 +66,9 @@ Shader "Hidden/MaskTextureEditor/Paint"
             {
                 float r = _BrushSize * _MainTex_TexelSize.xy * 0.5;
                 float d = distance(i.uv, _BrushPosition.xy * _MainTex_TexelSize.xy);
-                return lerp(tex2D(_MainTex, i.uv), _BrushColor, (1.0 - smoothstep(r * _BrushHardness, r, d)) * _BrushStrength);
+                float selection = lerp(1.0, tex2D(_SelectionMask, i.uv).r, _UseSelectionMask);
+                float strength = (1.0 - smoothstep(r * _BrushHardness, r, d)) * _BrushStrength * selection;
+                return lerp(tex2D(_MainTex, i.uv), _BrushColor, strength);
             }
             ENDCG
         }
