@@ -65,6 +65,45 @@ msgstr "色を反転させる"
 msgid "reset-view"
 msgstr "表示をウィンドウに合わせる"
 
+msgid "occluder-mesh"
+msgstr "遮蔽メッシュ"
+
+msgid "occluder-mesh-tooltip"
+msgstr "選択したレンダラーを覆い、遮蔽の検出に使うメッシュです。"
+
+msgid "ray-offset"
+msgstr "レイのオフセット"
+
+msgid "ray-offset-tooltip"
+msgstr "レイの始点を外側にずらす距離をワールド単位で指定します。"
+
+msgid "auto-detect-occlusion"
+msgstr "遮蔽を自動検出"
+
+msgid "occlusion-progress"
+msgstr "三角形を判定中"
+
+msgid "occlusion-error-offset"
+msgstr "レイのオフセットには、0より大きい有限の値を指定してください。"
+
+msgid "occlusion-error-same-renderer"
+msgstr "遮蔽メッシュには、対象とは別のレンダラーを指定してください。"
+
+msgid "occlusion-error-no-submesh"
+msgstr "選択したマテリアルスロットに対応するサブメッシュがありません。"
+
+msgid "occlusion-error-no-uv"
+msgstr "対象メッシュにはUV0座標が必要です。"
+
+msgid "occlusion-error-renderer"
+msgstr "メッシュが設定されたMeshRendererまたはSkinnedMeshRendererを選択してください。"
+
+msgid "occlusion-error-topology"
+msgstr "三角形メッシュのみ対応しています。四角形ポリゴンは先に三角形に変換してください。"
+
+msgid "ok"
+msgstr "OK"
+
 msgid "save"
 msgstr "保存する"
 

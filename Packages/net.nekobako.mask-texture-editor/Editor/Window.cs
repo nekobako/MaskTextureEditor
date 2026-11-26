@@ -102,6 +102,12 @@ namespace net.nekobako.MaskTextureEditor.Editor
         [SerializeField]
         private int m_SavedTextureInstanceId = 0;
 
+        [SerializeField]
+        private Renderer? m_Occluder = null;
+
+        [SerializeField]
+        private float m_OcclusionOffset = 0.1f;
+
 #if MTE_NDMF
         public static readonly PublishedValue<bool> IsOpen = new(false);
 
@@ -399,6 +405,25 @@ namespace net.nekobako.MaskTextureEditor.Editor
                     m_TextureUndoStack.Record();
                 }
             }
+
+            EditorGUILayout.Space();
+            var targetRenderer = m_UvMapDrawer.Renderer;
+            m_Occluder = EditorGUILayout.ObjectField(
+                new GUIContent(CL4EE.Tr("occluder-mesh"), CL4EE.Tr("occluder-mesh-tooltip")),
+                m_Occluder, typeof(Renderer), true) as Renderer;
+            m_OcclusionOffset = EditorGUILayout.FloatField(
+                new GUIContent(CL4EE.Tr("ray-offset"), CL4EE.Tr("ray-offset-tooltip")), m_OcclusionOffset);
+            using (new EditorGUI.DisabledScope(targetRenderer == null || m_Occluder == null))
+            {
+                if (GUILayout.Button(CL4EE.Tr("auto-detect-occlusion"), Styles.Button) &&
+                    targetRenderer != null && m_Occluder != null &&
+                    Occlusion.Paint(targetRenderer, m_UvMapDrawer.Slot, m_Occluder, m_OcclusionOffset, m_TexturePainter))
+                {
+                    m_TextureUndoStack.Record();
+                    Repaint();
+                }
+            }
+            EditorGUILayout.Space();
 
             if (GUILayout.Button(CL4EE.Tr("reset-view"), Styles.Button))
             {
