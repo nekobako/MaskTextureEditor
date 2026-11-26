@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -196,8 +197,52 @@ namespace net.nekobako.MaskTextureEditor.Editor
             m_FillMaterial.SetColor(s_ColorPropertyId, color);
 
             Graphics.Blit(m_Target, m_Buffer);
-            Graphics.Blit(m_Buffer, m_Target, m_FillMaterial);
+            Graphics.Blit(m_Buffer, m_Target, m_FillMaterial, m_FillMaterial.FindPass("Fill"));
             RenderTexture.active = null;
+        }
+
+        public void PaintOcclusion(Vector2[] uv, List<int> indices)
+        {
+            var previous = RenderTexture.active;
+            var mask = RenderTexture.GetTemporary(m_Target.width, m_Target.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+            try
+            {
+                mask.filterMode = FilterMode.Point;
+                mask.wrapMode = TextureWrapMode.Clamp;
+                RenderTexture.active = mask;
+                GL.PushMatrix();
+                try
+                {
+                    GL.Clear(false, true, Color.clear);
+                    GL.LoadOrtho();
+                    m_FillMaterial.SetColor(s_ColorPropertyId, Color.white);
+                    m_FillMaterial.SetInt(s_ColorMaskPropertyId, (int)ColorWriteMask.All);
+                    m_FillMaterial.SetPass(m_FillMaterial.FindPass("Fill"));
+                    GL.Begin(GL.TRIANGLES);
+                    foreach (var index in indices)
+                        GL.Vertex3(uv[index].x, uv[index].y, 0);
+                    GL.End();
+                }
+                finally
+                {
+                    GL.PopMatrix();
+                }
+
+                Graphics.Blit(m_Target, m_Buffer);
+                m_FillMaterial.SetTexture("_OriginalTex", m_Buffer);
+                m_FillMaterial.SetColor(s_ColorPropertyId, m_BrushColor);
+                m_FillMaterial.SetVector("_PaintChannels", new Vector4(
+                    (m_ColorMask & ColorWriteMask.Red) != 0 ? 1 : 0,
+                    (m_ColorMask & ColorWriteMask.Green) != 0 ? 1 : 0,
+                    (m_ColorMask & ColorWriteMask.Blue) != 0 ? 1 : 0,
+                    (m_ColorMask & ColorWriteMask.Alpha) != 0 ? 1 : 0));
+                Graphics.Blit(mask, m_Target, m_FillMaterial, m_FillMaterial.FindPass("Occlusion"));
+            }
+            finally
+            {
+                RenderTexture.active = previous;
+                RenderTexture.ReleaseTemporary(mask);
+            }
         }
 
         public void Paint(Vector2 position, bool stroke)

@@ -65,6 +65,45 @@ msgstr "反轉顏色"
 msgid "reset-view"
 msgstr "縮放視圖至視窗大小"
 
+msgid "occluder-mesh"
+msgstr "遮擋網格"
+
+msgid "occluder-mesh-tooltip"
+msgstr "覆蓋所選渲染器並用於偵測遮擋的網格。"
+
+msgid "ray-offset"
+msgstr "射線偏移"
+
+msgid "ray-offset-tooltip"
+msgstr "射線起點向外偏移的距離，以世界座標單位計算。"
+
+msgid "auto-detect-occlusion"
+msgstr "自動偵測遮擋"
+
+msgid "occlusion-progress"
+msgstr "正在檢查三角形"
+
+msgid "occlusion-error-offset"
+msgstr "射線偏移必須是大於零的有限數值。"
+
+msgid "occlusion-error-same-renderer"
+msgstr "遮擋網格與目標網格必須使用不同的渲染器。"
+
+msgid "occlusion-error-no-submesh"
+msgstr "所選材質插槽沒有對應的子網格。"
+
+msgid "occlusion-error-no-uv"
+msgstr "目標網格必須有 UV0 座標。"
+
+msgid "occlusion-error-renderer"
+msgstr "請選擇已指定網格的 MeshRenderer 或 SkinnedMeshRenderer。"
+
+msgid "occlusion-error-topology"
+msgstr "僅支援三角形網格。請先將四邊形轉換為三角形。"
+
+msgid "ok"
+msgstr "確定"
+
 msgid "save"
 msgstr "儲存"
 

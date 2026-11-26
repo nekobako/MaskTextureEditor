@@ -65,6 +65,45 @@ msgstr "Inverse Color"
 msgid "reset-view"
 msgstr "Fit the view to the window"
 
+msgid "occluder-mesh"
+msgstr "Occluder Mesh"
+
+msgid "occluder-mesh-tooltip"
+msgstr "Mesh that covers the selected renderer and is used to detect occlusion."
+
+msgid "ray-offset"
+msgstr "Ray Offset"
+
+msgid "ray-offset-tooltip"
+msgstr "Outward ray offset in world units."
+
+msgid "auto-detect-occlusion"
+msgstr "Auto-detect occlusion"
+
+msgid "occlusion-progress"
+msgstr "Testing triangles"
+
+msgid "occlusion-error-offset"
+msgstr "Ray Offset must be finite and greater than zero."
+
+msgid "occlusion-error-same-renderer"
+msgstr "The occluder must be a different renderer."
+
+msgid "occlusion-error-no-submesh"
+msgstr "The selected material slot has no submesh."
+
+msgid "occlusion-error-no-uv"
+msgstr "The target mesh must have UV0 coordinates."
+
+msgid "occlusion-error-renderer"
+msgstr "Select a MeshRenderer or SkinnedMeshRenderer with a mesh."
+
+msgid "occlusion-error-topology"
+msgstr "Only triangle meshes are supported. Convert quads to triangles first."
+
+msgid "ok"
+msgstr "OK"
+
 msgid "save"
 msgstr "Save"
 
